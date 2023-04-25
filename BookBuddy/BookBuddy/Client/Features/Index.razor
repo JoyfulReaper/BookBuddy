@@ -1,0 +1,31 @@
+﻿@page "/"
+@inject HttpClient _httpClient
+
+<PageTitle>BookBuddy</PageTitle>
+
+<header class="text-center">
+    <h1>BookBuddy - Search</h1>
+</header>
+
+<EditForm Model="_bookSearchOptions"
+          OnValidSubmit="SearchBooks"
+          class="row">
+    <div class="col">
+        <InputText @bind-Value="_bookSearchOptions.Title" class="form-control" placeholder="Title" aria-label="Title" />
+    </div>
+    <div class="col">
+        <InputText @bind-Value="_bookSearchOptions.Author" class="form-control" placeholder="Author" aria-label="Author" />
+    </div>
+    <div class="col">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</EditForm>
+
+@code {
+    private BookSearchOptions _bookSearchOptions = new BookSearchOptions();
+
+    private async Task SearchBooks()
+    {
+        var results = await _httpClient.PostAsJsonAsync<BookSearchOptions>("api/books/search", _bookSearchOptions);
+    }
+}

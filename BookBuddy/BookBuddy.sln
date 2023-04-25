@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookBuddy.Server", "BookBuddy\Server\BookBuddy.Server.csproj", "{796A1C0B-205B-4019-A5B7-7973D8C69C59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookBuddy.Server", "BookBuddy\Server\BookBuddy.Server.csproj", "{796A1C0B-205B-4019-A5B7-7973D8C69C59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookBuddy.Client", "BookBuddy\Client\BookBuddy.Client.csproj", "{6C066B8F-EBCA-4EAE-AE52-5FC0452F04C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookBuddy.Client", "BookBuddy\Client\BookBuddy.Client.csproj", "{6C066B8F-EBCA-4EAE-AE52-5FC0452F04C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookBuddy.Shared", "BookBuddy\Shared\BookBuddy.Shared.csproj", "{D8CCB46A-FE21-43B9-917A-477F7133E565}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookBuddy.Shared", "BookBuddy\Shared\BookBuddy.Shared.csproj", "{D8CCB46A-FE21-43B9-917A-477F7133E565}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

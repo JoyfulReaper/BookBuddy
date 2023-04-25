@@ -72,4 +72,11 @@ public class BooksController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("search")]
+    public async Task<ActionResult<List<BookResponse>>> SearchBooks(BookSearchOptions bookSearchOptions)
+    {
+        var books = await _bookService.SearchBooksAsync(bookSearchOptions);
+        return Ok(_mapper.Map<List<BookResponse>>(books));
+    }
 }

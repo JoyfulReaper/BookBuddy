@@ -1,0 +1,75 @@
+﻿@page "/add-book"
+@inject HttpClient _httpClient
+
+<header class="text-center">
+    <h1>BookBuddy - Add Book</h1>
+</header>
+
+<EditForm Model="_createBookRequest" OnValidSubmit="AddBook">
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <InputText id="title" class="form-control" @bind-Value="_createBookRequest.Title" />
+        <ValidationMessage For="@(() => _createBookRequest.Title)" />
+    </div>
+    <div class="mb-3">
+        <label for="author" class="form-label">Author</label>
+        <InputText id="author" class="form-control" @bind-Value="_createBookRequest.Author" />
+        <ValidationMessage For="@(() => _createBookRequest.Author)" />
+    </div>
+    <div class="mb-3">
+        <label for="publisher" class="form-label">Publisher</label>
+        <InputText id="publisher" class="form-control" @bind-Value="_createBookRequest.Publisher" />
+        <ValidationMessage For="@(() => _createBookRequest.Publisher)" />
+    </div>
+    <div class="mb-3">
+        <label for="isbn" class="form-label">ISBN</label>
+        <InputText id="isbn" class="form-control" @bind-Value="_createBookRequest.ISBN" />
+        <ValidationMessage For="@(() => _createBookRequest.ISBN)" />
+    </div>
+    <div class="mb-3">
+        <label for="publicationYear" class="form-label">Publication Year</label>
+        <InputNumber id="publicationYear" class="form-control" @bind-Value="_createBookRequest.PublicationYear" />
+        <ValidationMessage For="@(() => _createBookRequest.PublicationYear)" />
+    </div>
+    <div class="mb-3">
+        <label for="genre" class="form-label">Genre</label>
+        <InputText id="genre" class="form-control" @bind-Value="_createBookRequest.Genre" />
+        <ValidationMessage For="@(() => _createBookRequest.Genre)" />
+    </div>
+    <div class="mb-3">
+        <label for="format" class="form-label">Format</label>
+        <InputSelect id="format" class="form-select" @bind-Value="_createBookRequest.Format">
+            @foreach (var format in Enum.GetValues(typeof(BookFormat)))
+            {
+                <option value="@format">@format</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => _createBookRequest.Format)" />
+    </div>
+    <div class="mb-3">
+        <label for="notes" class="form-label">Notes</label>
+        <InputTextArea id="notes" class="form-control" @bind-Value="_createBookRequest.Notes" />
+        <ValidationMessage For="@(() => _createBookRequest.Notes)" />
+    </div>
+    <div class="mb-3">
+        <label for="programmingLanguage" class="form-label">Programming Language</label>
+        <InputSelect id="programmingLanguage" class="form-select" @bind-Value="_createBookRequest.ProgrammingLanguage">
+            <option value="">Select a programming language</option>
+            @foreach (var language in Enum.GetValues(typeof(ProgrammingLanguage)))
+            {
+                <option value="@language">@language</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => _createBookRequest.ProgrammingLanguage)" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    private CreateBookRequest _createBookRequest = new();
+
+    private async Task AddBook()
+    {
+        var results = await _httpClient.PostAsJsonAsync<CreateBookRequest>("api/books", _createBookRequest);
+    }
+}
