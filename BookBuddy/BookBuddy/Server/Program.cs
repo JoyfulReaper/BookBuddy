@@ -1,7 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services.AddControllersWithViews();
     builder.Services.AddRazorPages();
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 }
 
 var app = builder.Build();
