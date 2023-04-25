@@ -1,4 +1,4 @@
-﻿namespace BookBuddy.Server.Enums;
+﻿namespace BookBuddy.Shared.Enums;
 
 public enum BookFormat
 {

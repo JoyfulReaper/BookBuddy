@@ -1,12 +1,13 @@
+using BookBuddy.Server.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services.AddControllersWithViews();
     builder.Services.AddRazorPages();
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddAutoMapper(typeof(Program));
 }
 
 var app = builder.Build();
@@ -31,6 +32,11 @@ var app = builder.Build();
     app.MapRazorPages();
     app.MapControllers();
     app.MapFallbackToFile("index.html");
+
+    using var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope();
+    var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+
 
     app.Run();
 }

@@ -34,4 +34,6 @@ public class Book
     public string? Notes { get; set; }
 
     public ProgrammingLanguage? ProgrammingLanguage { get; set; }
+
+    public bool IsDeleted { get; set; }
 }
