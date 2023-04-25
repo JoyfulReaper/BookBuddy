@@ -1,4 +1,6 @@
 using BookBuddy.Server.Data;
+using BookBuddy.Server.Services;
+using BookBuddy.Server.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
     builder.Services.AddAutoMapper(typeof(Program));
+
+    builder.Services.AddTransient<IBookService, BookService>();
 }
 
 var app = builder.Build();

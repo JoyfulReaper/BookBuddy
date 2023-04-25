@@ -1,4 +1,4 @@
-﻿using BookBuddy.Server.Enums;
+﻿using BookBuddy.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace BookBuddy.Server.Data;
