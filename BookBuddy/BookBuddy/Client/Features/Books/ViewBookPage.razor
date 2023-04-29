@@ -1,0 +1,103 @@
+﻿@page "/view-book/{id:int}"
+@inject HttpClient _httpClient
+@inject ILogger<ViewBookPage> _logger
+
+<h3>View Book</h3>
+
+@if (_book != null)
+{
+    <dl class="row">
+        <dt class="col-sm-2">
+            Title
+        </dt>
+        <dd class="col-sm-10">
+            @_book.Title
+        </dd>
+        <dt class="col-sm-2">
+            Author
+        </dt>
+        <dd class="col-sm-10">
+            @_book.Author
+        </dd>
+        <dt class="col-sm-2">
+            Publisher
+        </dt>
+        <dd class="col-sm-10">
+            @_book.Publisher
+        </dd>
+        <dt class="col-sm-2">
+            ISBN
+        </dt>
+        <dd class="col-sm-10">
+            @_book.ISBN
+        </dd>
+        <dt class="col-sm-2">
+            Publication Year
+        </dt>
+        <dd class="col-sm-10">
+            @_book.PublicationYear
+        </dd>
+        <dt class="col-sm-2">
+            Genre
+        </dt>
+        <dd class="col-sm-10">
+            @_book.Genre
+        </dd>
+        <dt class="col-sm-2">
+            Format
+        </dt>
+        <dd class="col-sm-10">
+            @_book.Format
+        </dd>
+        <dt class="col-sm-2">
+            Notes
+        </dt>
+        <dd class="col-sm-10">
+            @_book.Notes
+        </dd>
+        <dt class="col-sm-2">
+            Programming Language
+        </dt>
+        <dd class="col-sm-10">
+            @_book.ProgrammingLanguage
+        </dd>
+    </dl>
+}
+else if(_notFound)
+{
+    <h1>Book Not Found...</h1>
+}
+else if(_otherError)
+{
+    <h1>Something went wrong...</h1>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private BookResponse? _book;
+    private bool _notFound;
+    private bool _otherError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _book = await _httpClient.GetFromJsonAsync<BookResponse>($"api/books/{Id}");
+        }
+        catch (HttpRequestException ex) when (ex.Message.Contains("404"))
+        {
+            _notFound = true;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Error getting book");
+            _otherError = true;
+        }
+    }
+}

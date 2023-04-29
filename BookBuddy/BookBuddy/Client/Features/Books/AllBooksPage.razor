@@ -1,0 +1,29 @@
+﻿@page "/all-books"
+@inject HttpClient _httpClient
+
+<h3>All Books</h3>
+
+@if (_books is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var book in _books)
+        {
+            <li>
+                <a href="view-book/@book.Id">@book.Title</a>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<BookResponse>? _books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _books = await _httpClient.GetFromJsonAsync<List<BookResponse>>("api/books") ?? new();
+    }
+}
