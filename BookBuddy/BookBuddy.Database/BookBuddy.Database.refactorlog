@@ -56,4 +56,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="Website" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="5f755eb5-257d-4230-b18e-acc4015222ab" ChangeDateTime="06/25/2023 01:58:35">
+    <Property Name="ElementName" Value="[dbo].[Books].[FormatId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Books]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="BookFormatId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="75028434-10b3-4187-bead-e12182c85112" ChangeDateTime="06/25/2023 02:16:04">
+    <Property Name="ElementName" Value="[dbo].[ProgrammingLanguages].[ProgrammingLanguage]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ProgrammingLanguages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Language" />
+  </Operation>
 </Operations>

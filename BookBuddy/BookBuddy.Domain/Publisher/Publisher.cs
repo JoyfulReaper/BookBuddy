@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookBuddy.Domain;
-internal class ProgrammingLanguage
+namespace BookBuddy.Domain.Publisher;
+internal class Publisher
 {
 }
