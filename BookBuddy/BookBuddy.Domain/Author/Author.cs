@@ -5,7 +5,7 @@ namespace BookBuddy.Domain.Author;
 public class Author : Entity<AuthorId>
 {
     private Author(AuthorId authorId,
-        string firstName,
+        string? firstName,
         string lastName) : base(authorId)
     {
         AuthorId = authorId;
@@ -14,12 +14,12 @@ public class Author : Entity<AuthorId>
     }
 
     public AuthorId AuthorId { get; }
-    public string FirstName { get; } = default!;
+    public string? FirstName { get; } = default!;
     public string LastName { get; } = default!;
     public DateTime DateCreated { get; set; }
 
     public static Author Create(AuthorId authorId,
-        string firstName,
+        string? firstName,
         string lastName)
     {
         return new Author(authorId,

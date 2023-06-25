@@ -2,6 +2,7 @@
 using BookBuddy.Domain.BookFormat;
 using BookBuddy.Domain.Common;
 using BookBuddy.Domain.ProgrammingLanguage;
+using BookBuddy.Domain.Publiser;
 
 namespace BookBuddy.Domain.Book;
 
@@ -12,13 +13,13 @@ public class Book : Entity<BookId>
         AuthorId? authorId,
         PublisherId? publisherId,
         BookFormatId? bookFormat,
-        ProgrammingLanguageId programmingLanguageId,
+        ProgrammingLanguageId? programmingLanguageId,
         string? isbn,
         int publicationYear,
         string? genre,
         string? website,
         string? notes,
-        DateTime datecreated)
+        DateTime datecreated) : base (bookId)
     {
         BookId = bookId;
         Title = title;
@@ -34,11 +35,38 @@ public class Book : Entity<BookId>
         DateCreated = datecreated;
     }
 
+    public static Book Create(BookId bookId,
+        string title,
+        AuthorId? authorId,
+        PublisherId? publisherId,
+        BookFormatId? bookFormatId,
+        ProgrammingLanguageId? programmingLanguageId,
+        string? isbn,
+        int publicationYear,
+        string? genre,
+        string? website,
+        string? notes,
+        DateTime dateCreated)
+    {
+        return new Book(bookId,
+            title,
+            authorId,
+            publisherId,
+            bookFormatId,
+            programmingLanguageId,
+            isbn,
+            publicationYear,
+            genre,
+            website,
+            notes,
+            dateCreated);
+    }
+
     public BookId BookId { get; }
     public string Title { get; } = default!;
     public AuthorId? AuthorId { get; }
     public PublisherId? PublisherId { get; }
-    public BookFormatId BookFormatId { get; } = default!;
+    public BookFormatId? BookFormatId { get; } = default!;
     public ProgrammingLanguageId? ProgrammingLanguageId { get; }
     public string? Isbn { get; }
     public int PublicationYear { get; set; }
