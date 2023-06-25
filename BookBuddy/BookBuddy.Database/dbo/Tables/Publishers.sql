@@ -2,5 +2,6 @@
 (
 	[PublisherId] INT NOT NULL PRIMARY KEY IDENTITY, 
 	[Name] NVARCHAR(50),
-    [Website] NVARCHAR(50) NULL
+    [Website] NVARCHAR(50) NULL, 
+    [DateCreated] DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
 )
