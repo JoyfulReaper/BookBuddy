@@ -1,4 +1,7 @@
-﻿using BookBuddy.Application.Common.Interfaces.Services;
+﻿using BookBuddy.Application.Common.Interfaces.Persistence;
+using BookBuddy.Application.Common.Interfaces.Services;
+using BookBuddy.Infrastructure.Persistence;
+using BookBuddy.Infrastructure.Persistence.Interfaces;
 using BookBuddy.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +22,9 @@ public static class DependencyInjection
 
     public static IServiceCollection AddPersistence(this IServiceCollection services)
     {
+        services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+        services.AddTransient<IBookRepository, BookRepository>();
+
         return services;
     }
 }

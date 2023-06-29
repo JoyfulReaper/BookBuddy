@@ -1,6 +1,6 @@
 ﻿using BookBuddy.Domain.Common;
 
-namespace BookBuddy.Domain.Publiser;
+namespace BookBuddy.Domain.BookAggregate.ValueObjects;
 
 public class PublisherId : ValueObject
 {

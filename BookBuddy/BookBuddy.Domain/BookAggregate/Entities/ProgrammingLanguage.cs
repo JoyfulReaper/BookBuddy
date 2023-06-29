@@ -1,6 +1,7 @@
-﻿using BookBuddy.Domain.Common;
+﻿using BookBuddy.Domain.BookAggregate.ValueObjects;
+using BookBuddy.Domain.Common;
 
-namespace BookBuddy.Domain.ProgrammingLanguage;
+namespace BookBuddy.Domain.BookAggregate.Entities;
 
 public class ProgrammingLanguage : Entity<ProgrammingLanguageId>
 {

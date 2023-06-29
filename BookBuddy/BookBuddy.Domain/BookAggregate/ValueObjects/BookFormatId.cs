@@ -1,18 +1,18 @@
 ﻿using BookBuddy.Domain.Common;
 
-namespace BookBuddy.Domain.Book;
-public class BookId : ValueObject
+namespace BookBuddy.Domain.BookAggregate.ValueObjects;
+public class BookFormatId : ValueObject
 {
     public int Value { get; }
 
-    private BookId(int bookId)
+    private BookFormatId(int bookId)
     {
         Value = bookId;
     }
 
-    public static BookId Create(int bookId)
+    public static BookFormatId Create(int bookId)
     {
-        return new BookId(bookId);
+        return new BookFormatId(bookId);
     }
 
     public override IEnumerable<object> GetEqualityComponents()

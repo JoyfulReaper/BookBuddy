@@ -1,19 +1,17 @@
-﻿using BookBuddy.Domain.Author;
-using BookBuddy.Domain.BookFormat;
+﻿using BookBuddy.Domain.BookAggregate.Entities;
+using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Domain.Common;
-using BookBuddy.Domain.ProgrammingLanguage;
-using BookBuddy.Domain.Publiser;
 
-namespace BookBuddy.Domain.Book;
+namespace BookBuddy.Domain.BookAggregate.Book;
 
 public class Book : Entity<BookId>
 {
     private Book(BookId bookId,
         string title,
-        AuthorId? authorId,
-        PublisherId? publisherId,
-        BookFormatId? bookFormat,
-        ProgrammingLanguageId? programmingLanguageId,
+        Author? author,
+        Publisher? publisher,
+        BookFormat? bookFormat,
+        ProgrammingLanguage? programmingLanguage,
         string? isbn,
         int publicationYear,
         string? genre,
@@ -23,10 +21,10 @@ public class Book : Entity<BookId>
     {
         BookId = bookId;
         Title = title;
-        AuthorId = authorId;
-        PublisherId = publisherId;
-        BookFormatId = bookFormat;
-        ProgrammingLanguageId = programmingLanguageId;
+        Author = author;
+        Publisher = publisher;
+        BookFormat = bookFormat;
+        ProgrammingLanguage = programmingLanguage;
         Isbn = isbn;
         PublicationYear = publicationYear;
         Genre = genre;
@@ -37,10 +35,10 @@ public class Book : Entity<BookId>
 
     public static Book Create(BookId bookId,
         string title,
-        AuthorId? authorId,
-        PublisherId? publisherId,
-        BookFormatId? bookFormatId,
-        ProgrammingLanguageId? programmingLanguageId,
+        Author? author,
+        Publisher? publisher,
+        BookFormat? bookFormat,
+        ProgrammingLanguage? programmingLanguage,
         string? isbn,
         int publicationYear,
         string? genre,
@@ -50,10 +48,10 @@ public class Book : Entity<BookId>
     {
         return new Book(bookId,
             title,
-            authorId,
-            publisherId,
-            bookFormatId,
-            programmingLanguageId,
+            author,
+            publisher,
+            bookFormat,
+            programmingLanguage,
             isbn,
             publicationYear,
             genre,
@@ -64,14 +62,15 @@ public class Book : Entity<BookId>
 
     public BookId BookId { get; }
     public string Title { get; } = default!;
-    public AuthorId? AuthorId { get; }
-    public PublisherId? PublisherId { get; }
-    public BookFormatId? BookFormatId { get; } = default!;
-    public ProgrammingLanguageId? ProgrammingLanguageId { get; }
     public string? Isbn { get; }
     public int PublicationYear { get; set; }
     public string? Genre { get; }
     public string? Website { get; set; }
     public string? Notes { get; }
     public DateTime DateCreated { get; }
+
+    public Author? Author { get; }
+    public BookFormat? BookFormat { get; }
+    public Publisher? Publisher { get; }
+    public ProgrammingLanguage? ProgrammingLanguage { get; }
 }

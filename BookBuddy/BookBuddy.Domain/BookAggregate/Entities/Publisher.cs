@@ -1,7 +1,7 @@
-﻿using BookBuddy.Domain.Common;
-using BookBuddy.Domain.Publiser;
+﻿using BookBuddy.Domain.BookAggregate.ValueObjects;
+using BookBuddy.Domain.Common;
 
-namespace BookBuddy.Domain.Publisher;
+namespace BookBuddy.Domain.BookAggregate.Entities;
 
 public class Publisher : Entity<PublisherId>
 {

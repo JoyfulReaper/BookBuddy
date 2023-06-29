@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookBuddy.Domain.ProgrammingLanguage;
+namespace BookBuddy.Domain.BookAggregate.ValueObjects;
 public class ProgrammingLanguageId : ValueObject
 {
     public int Value { get; }
