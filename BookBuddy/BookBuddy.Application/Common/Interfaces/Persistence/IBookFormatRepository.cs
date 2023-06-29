@@ -1,13 +1,14 @@
 ﻿using BookBuddy.Domain.BookAggregate.Entities;
+using BookBuddy.Domain.BookAggregate.ValueObjects;
 using System.Data;
 
 namespace BookBuddy.Application.Common.Interfaces.Persistence;
 
 public interface IBookFormatRepository
 {
-    Task<BookFormat> GetBookFormatAsync(int id);
+    Task<BookFormat> GetBookFormatAsync(BookFormatId id);
     Task<IEnumerable<BookFormat>> GetAllBookFormatsAsync();
-    Task<BookFormat> AddBookFormatAsync(BookFormat author, IDbTransaction? transaction);
-    Task<BookFormat> UpdateBookFormatAsync(BookFormat author, IDbTransaction? transaction);
-    Task DeleteBookFormatAsync(int id);
+    Task<BookFormatId> AddBookFormatAsync(BookFormat author, IDbTransaction? transaction);
+    Task UpdateBookFormatAsync(BookFormat author, IDbTransaction? transaction);
+    Task DeleteBookFormatAsync(BookFormatId id);
 }

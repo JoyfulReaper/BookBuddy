@@ -28,12 +28,12 @@ internal class BookRepository : IBookRepository, IDisposable
         _publisherRepository = publisherRepository;
     }
 
-    public async Task<Book> AddBookAsync(Book book)
+    public async Task<BookId> AddBookAsync(Book book)
     {
         var transaction = _dbConnection.BeginTransaction();
         try
         {
-            var booksql = @"INSERT INTO [dbo].[Book]
+            var booksql = @"INSERT INTO [dbo].[Books]
                                     ([Title]
                                     ,[AuthorId]
                                     ,[PublisherId]
@@ -57,10 +57,23 @@ internal class BookRepository : IBookRepository, IDisposable
                                     ,@Notes)
                             SELECT CAST(SCOPE_IDENTITY() as int)";
 
-            var bookId = await _dbConnection.ExecuteScalarAsync<int>(booksql, book, transaction);
+            var bookId = await _dbConnection.ExecuteScalarAsync<int>(booksql, 
+                new {
+                    book.Title,
+                    AuthorId = book.Author?.Id,
+                    PublisherId = book.Publisher?.Id,
+                    BookFormatId = book.BookFormat?.Id,
+                    ProgrammingLanguageId = book.ProgrammingLanguage?.Id,
+                    book.Isbn,
+                    book.PublicationYear,
+                    book.Genre,
+                    book.Website,
+                    book.Notes
+                },
+                transaction);
 
             if (book.Author is not null)
-                 await _authorRepository.AddAuthorAsync(book.Author, transaction);
+                await _authorRepository.AddAuthorAsync(book.Author, transaction);
             if(book.Publisher is not null)
                 await _publisherRepository.AddPublisherAsync(book.Publisher, transaction);
             if(book.BookFormat is not null)
@@ -69,8 +82,7 @@ internal class BookRepository : IBookRepository, IDisposable
                 await _programmingLanguageRepository.AddProgrammingLanguageAsync(book.ProgrammingLanguage, transaction);
 
             transaction.Commit();
-
-            return await GetBookAsync(bookId);
+            return BookId.Create(bookId);
         }
         catch
         {
@@ -79,7 +91,7 @@ internal class BookRepository : IBookRepository, IDisposable
         }
     }
 
-    public Task DeleteBookAsync(int id)
+    public Task DeleteBookAsync(BookId id)
     {
         throw new NotImplementedException();
     }
@@ -94,12 +106,12 @@ internal class BookRepository : IBookRepository, IDisposable
         throw new NotImplementedException();
     }
 
-    public Task<Book> GetBookAsync(int id)
+    public Task<Book> GetBookAsync(BookId id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Book> UpdateBookAsync(Book book)
+    public Task UpdateBookAsync(Book book)
     {
         throw new NotImplementedException();
     }

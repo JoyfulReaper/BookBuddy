@@ -1,13 +1,14 @@
 ﻿using BookBuddy.Domain.BookAggregate.Entities;
+using BookBuddy.Domain.BookAggregate.ValueObjects;
 using System.Data;
 
 namespace BookBuddy.Application.Common.Interfaces.Persistence;
 
 public interface IProgrammingLanguageRepository
 {
-    Task<ProgrammingLanguage> GetProgrammingLanguageAsync(int id);
+    Task<ProgrammingLanguage> GetProgrammingLanguageAsync(ProgrammingLanguageId id);
     Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync();
-    Task<ProgrammingLanguage> AddProgrammingLanguageAsync(ProgrammingLanguage author, IDbTransaction? transaction);
-    Task<ProgrammingLanguage> UpdateProgrammingLanguageAsync(ProgrammingLanguage author, IDbTransaction? transaction);
-    Task DeleteProgrammingLanguageAsync(int id);
+    Task<ProgrammingLanguageId> AddProgrammingLanguageAsync(ProgrammingLanguage author, IDbTransaction? transaction);
+    Task UpdateProgrammingLanguageAsync(ProgrammingLanguage author, IDbTransaction? transaction);
+    Task DeleteProgrammingLanguageAsync(ProgrammingLanguageId id);
 }
