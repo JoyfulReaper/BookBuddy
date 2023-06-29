@@ -5,7 +5,6 @@ using BookBuddy.Infrastructure.Persistence.Interfaces;
 using Dapper;
 using System.Data;
 
-
 namespace BookBuddy.Infrastructure.Persistence;
 
 internal class AuthorRepository : IAuthorRepository

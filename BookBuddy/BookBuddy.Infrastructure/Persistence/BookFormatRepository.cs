@@ -1,15 +1,36 @@
 ﻿using BookBuddy.Application.Common.Interfaces.Persistence;
 using BookBuddy.Domain.BookAggregate.Entities;
 using BookBuddy.Domain.BookAggregate.ValueObjects;
+using BookBuddy.Infrastructure.Persistence.Interfaces;
+using Dapper;
 using System.Data;
 
 
 namespace BookBuddy.Infrastructure.Persistence;
 internal class BookFormatRepository : IBookFormatRepository
 {
-    public Task<BookFormatId> AddBookFormatAsync(BookFormat author, IDbTransaction? transaction)
+    private readonly IDbConnection _connection;
+
+    public BookFormatRepository(ISqlConnectionFactory sqlConnectionFactory)
     {
-        throw new NotImplementedException();
+        _connection = sqlConnectionFactory.CreateConnection();    
+    }
+
+    public async Task<BookFormatId> AddBookFormatAsync(BookFormat bookFormat, IDbTransaction? transaction)
+    {
+        var sql = @"INSERT INTO [dbo].[BookFormats]
+                            (Format)
+                          VALEUS
+                             (@Format)
+                          SELECT CAST (SCOPE_IDENTITY() AS INT)";
+
+        var bookFormatId = await _connection.ExecuteScalarAsync<int>(sql,
+            new
+            {
+                bookFormat.BookFormatId
+            }, transaction);
+
+        return BookFormatId.Create(bookFormatId);
     }
 
     public Task DeleteBookFormatAsync(BookFormatId id)
@@ -27,7 +48,7 @@ internal class BookFormatRepository : IBookFormatRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateBookFormatAsync(BookFormat author, IDbTransaction? transaction)
+    public Task UpdateBookFormatAsync(BookFormat bookFormat, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }

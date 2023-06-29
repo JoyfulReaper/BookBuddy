@@ -8,7 +8,7 @@ public interface IProgrammingLanguageRepository
 {
     Task<ProgrammingLanguage> GetProgrammingLanguageAsync(ProgrammingLanguageId id);
     Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync();
-    Task<ProgrammingLanguageId> AddProgrammingLanguageAsync(ProgrammingLanguage author, IDbTransaction? transaction);
-    Task UpdateProgrammingLanguageAsync(ProgrammingLanguage author, IDbTransaction? transaction);
+    Task<ProgrammingLanguageId> AddProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage, IDbTransaction? transaction);
+    Task UpdateProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage, IDbTransaction? transaction);
     Task DeleteProgrammingLanguageAsync(ProgrammingLanguageId id);
 }

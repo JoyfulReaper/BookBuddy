@@ -8,7 +8,7 @@ public interface IBookFormatRepository
 {
     Task<BookFormat> GetBookFormatAsync(BookFormatId id);
     Task<IEnumerable<BookFormat>> GetAllBookFormatsAsync();
-    Task<BookFormatId> AddBookFormatAsync(BookFormat author, IDbTransaction? transaction);
-    Task UpdateBookFormatAsync(BookFormat author, IDbTransaction? transaction);
+    Task<BookFormatId> AddBookFormatAsync(BookFormat bookFormat, IDbTransaction? transaction);
+    Task UpdateBookFormatAsync(BookFormat bookFormat, IDbTransaction? transaction);
     Task DeleteBookFormatAsync(BookFormatId id);
 }
