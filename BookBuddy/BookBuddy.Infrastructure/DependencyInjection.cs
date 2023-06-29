@@ -24,6 +24,10 @@ public static class DependencyInjection
     {
         services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
         services.AddTransient<IBookRepository, BookRepository>();
+        services.AddTransient<IProgrammingLanguageRepository, ProgrammingLanguageRepository>();
+        services.AddTransient<IAuthorRepository, AuthorRepository>();
+        services.AddTransient<IPublisherRepository, PublisherRepository>();
+        services.AddTransient<IBookFormatRepository, BookFormatRepository>();
 
         return services;
     }

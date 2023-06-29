@@ -1,8 +1,12 @@
 using BookBuddy.Api;
+using BookBuddy.Application;
+using BookBuddy.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 {
-    builder.Services.AddPresentation();
+    builder.Services.AddPresentation()
+        .AddApplication()
+        .AddInfrastruction(builder.Configuration);
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
