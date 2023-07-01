@@ -5,13 +5,15 @@ VisualStudioVersion = 17.7.33808.371
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookBuddy.Api", "BookBuddy.Api\BookBuddy.Api.csproj", "{D5F337EF-A46C-41B9-9CE0-8CA243D5057C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookBuddy.Domain", "BookBuddy.Domain\BookBuddy.Domain.csproj", "{A5075B01-30F8-4DAF-8E61-5ACB6CCBC65A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookBuddy.Domain", "BookBuddy.Domain\BookBuddy.Domain.csproj", "{A5075B01-30F8-4DAF-8E61-5ACB6CCBC65A}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "BookBuddy.Database", "BookBuddy.Database\BookBuddy.Database.sqlproj", "{9DDA9CC4-A6D8-4551-A4DE-A89AD3B10BE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookBuddy.Application", "BookBuddy.Application\BookBuddy.Application.csproj", "{D3B92609-EBBA-4C8B-9E68-E149D38B2197}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookBuddy.Application", "BookBuddy.Application\BookBuddy.Application.csproj", "{D3B92609-EBBA-4C8B-9E68-E149D38B2197}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookBuddy.Infrastructure", "BookBuddy.Infrastructure\BookBuddy.Infrastructure.csproj", "{56E23701-856D-4C63-8F14-020C91DA91C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookBuddy.Infrastructure", "BookBuddy.Infrastructure\BookBuddy.Infrastructure.csproj", "{56E23701-856D-4C63-8F14-020C91DA91C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookBuddy.Contracts", "BookBuddy.Contracts\BookBuddy.Contracts.csproj", "{4AC988B9-9C2F-4576-A5D8-EE2B7FA21208}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{56E23701-856D-4C63-8F14-020C91DA91C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56E23701-856D-4C63-8F14-020C91DA91C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56E23701-856D-4C63-8F14-020C91DA91C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AC988B9-9C2F-4576-A5D8-EE2B7FA21208}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AC988B9-9C2F-4576-A5D8-EE2B7FA21208}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AC988B9-9C2F-4576-A5D8-EE2B7FA21208}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AC988B9-9C2F-4576-A5D8-EE2B7FA21208}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

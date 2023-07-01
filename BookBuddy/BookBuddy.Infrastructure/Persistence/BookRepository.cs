@@ -1,6 +1,5 @@
 ﻿using BookBuddy.Application.Common.Interfaces.Persistence;
-using BookBuddy.Domain.BookAggregate.Book;
-using BookBuddy.Domain.BookAggregate.Entities;
+using BookBuddy.Domain.BookAggregate;
 using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Infrastructure.Persistence.Interfaces;
 using Dapper;
@@ -106,7 +105,7 @@ internal class BookRepository : IBookRepository, IDisposable
         throw new NotImplementedException();
     }
 
-    public Task<Book> GetBookAsync(BookId id)
+    public Task<Book?> GetBookAsync(BookId id)
     {
         throw new NotImplementedException();
     }

@@ -2,7 +2,7 @@
 using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Domain.Common;
 
-namespace BookBuddy.Domain.BookAggregate.Book;
+namespace BookBuddy.Domain.BookAggregate;
 
 public class Book : Entity<BookId>
 {
