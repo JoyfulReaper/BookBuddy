@@ -70,13 +70,17 @@ internal class AuthorRepository : IAuthorRepository, IDisposable
         var output = new List<Author>();
         foreach (var item in author)
         {
-            output.Add(AuthorDto.ToAuthor(item));
+            var authorToOutput = AuthorDto.ToAuthor(item);
+            if (authorToOutput is not null)
+            {
+                output.Add(authorToOutput);
+            }
         }
 
         return output;
     }
 
-    public async Task<Author> GetAuthorAsync(AuthorId id, IDbTransaction? transaction = null)
+    public async Task<Author?> GetAuthorAsync(AuthorId id, IDbTransaction? transaction = null)
     {
         var sql = @"SELECT [AuthorId],
                            [FirstName],
@@ -110,8 +114,13 @@ internal class AuthorDto
     string FirstName { get; set; } = default!;
     string LastName { get; set; } = default!;
 
-    public static Author ToAuthor(AuthorDto dto)
+    public static Author? ToAuthor(AuthorDto? dto)
     {
+        if (dto is null)
+        {
+            return null;
+        }
+
         return Author.Create(Domain.BookAggregate.ValueObjects.AuthorId.Create(dto.AuthorId),
             dto.FirstName,
             dto.LastName);
