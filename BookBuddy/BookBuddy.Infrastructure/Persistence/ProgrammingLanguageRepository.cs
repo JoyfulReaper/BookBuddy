@@ -11,7 +11,7 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, I
 {
     private readonly IDbConnection _connection;
 
-    public ProgrammingLanguageRepository(ISqlConnectionFactory sqlConnectionFactory, IDbTransaction? transaction)
+    public ProgrammingLanguageRepository(ISqlConnectionFactory sqlConnectionFactory)
     {
         _connection = sqlConnectionFactory.CreateConnection();
     }

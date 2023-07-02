@@ -30,6 +30,7 @@ internal class BookRepository : IBookRepository, IDisposable
 
     public async Task<BookId> AddBookAsync(Book book, IDbTransaction? transaction)
     {
+        _dbConnection.Open();
         var dbTransaction = transaction ?? _dbConnection.BeginTransaction();
         try
         {
@@ -52,7 +53,7 @@ internal class BookRepository : IBookRepository, IDisposable
                                     ,@ProgrammingLanguageId
                                     ,@Isbn
                                     ,@PublicationYear
-                                    ,@Genere
+                                    ,@Genre
                                     ,@Website
                                     ,@Notes)
                             SELECT CAST(SCOPE_IDENTITY() as int)";
@@ -60,10 +61,10 @@ internal class BookRepository : IBookRepository, IDisposable
             var bookId = await _dbConnection.ExecuteScalarAsync<int>(booksql, 
                 new {
                     book.Title,
-                    AuthorId = book.Author?.Id,
-                    PublisherId = book.Publisher?.Id,
-                    BookFormatId = book.BookFormat?.Id,
-                    ProgrammingLanguageId = book.ProgrammingLanguage?.Id,
+                    AuthorId = book.Author?.Id.Value,
+                    PublisherId = book.Publisher?.Id.Value,
+                    BookFormatId = book.BookFormat?.Id.Value,
+                    ProgrammingLanguageId = book.ProgrammingLanguage?.Id.Value,
                     book.Isbn,
                     book.PublicationYear,
                     book.Genre,

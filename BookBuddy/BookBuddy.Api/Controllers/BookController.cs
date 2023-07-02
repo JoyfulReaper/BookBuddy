@@ -1,5 +1,7 @@
 ﻿using BookBuddy.Application.Books.Commands.CreateBook;
+using BookBuddy.Application.Books.Queries.GetBook;
 using BookBuddy.Contracts.Books;
+using BookBuddy.Domain.BookAggregate.ValueObjects;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +25,15 @@ public class BookController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<BookResponse>> GetBook(int id)
     {
-        throw new NotImplementedException();
+        var query = new GetBookQuery(BookId.Create(id));
+        var book = await _mediator.Send(query);
+
+        if(book is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(book);
     }
 
     [HttpPost]

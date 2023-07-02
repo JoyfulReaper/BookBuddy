@@ -11,7 +11,7 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
 {
     private readonly IDbConnection _connection;
 
-    public PublisherRepository(ISqlConnectionFactory sqlConnectionFactory, IDbTransaction? transaction)
+    public PublisherRepository(ISqlConnectionFactory sqlConnectionFactory)
     {
         _connection = sqlConnectionFactory.CreateConnection();
     }
