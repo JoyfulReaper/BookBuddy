@@ -4,6 +4,7 @@ using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Infrastructure.Persistence.Interfaces;
 using Dapper;
 using System.Data;
+using System.Data.Common;
 
 namespace BookBuddy.Infrastructure.Persistence;
 
@@ -11,20 +12,24 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
 {
     private readonly IDbConnection _connection;
 
-    public PublisherRepository(ISqlConnectionFactory sqlConnectionFactory)
+    public PublisherRepository(IDbConnectionFactory sqlConnectionFactory)
     {
         _connection = sqlConnectionFactory.CreateConnection();
     }
 
-    public async Task<PublisherId> AddPublisherAsync(Publisher author, IDbTransaction? transaction)
+    public async Task<PublisherId> AddPublisherAsync(Publisher author,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
+
         var sql = @"INSERT INTO [dbo].[Publishers]
                             ([Name], [Website])
                           VALUES
                             (@Name, @Website)
                           SELECT CAST(SCOPE_IDENTITY() AS INT)";
 
-        var publisherId = await _connection.ExecuteScalarAsync<int>(sql,
+        var publisherId = await dbConnection.ExecuteScalarAsync<int>(sql,
             new
             {
                 author.Name,
@@ -34,7 +39,9 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         return PublisherId.Create(publisherId);
     }
 
-    public async Task<bool> DeletePublisherAsync(int id, IDbTransaction? transaction)
+    public async Task<bool> DeletePublisherAsync(PublisherId id,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         var checkIfPublisherHasBooksSql = @"SELECT COUNT(*)
                                             FROM [dbo].[Books]
@@ -57,8 +64,11 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         _connection.Dispose();
     }
 
-    public async Task<IEnumerable<Publisher>> GetAllPublishersAsync(IDbTransaction? transaction)
+    public async Task<IEnumerable<Publisher>> GetAllPublishersAsync(
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
         var sql = @"SELECT [PublisherId],
                            [Name],
                            [Website],
@@ -66,7 +76,7 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
                       FROM [dbo].[Publishers]
                      WHERE [Id] = @Id";
 
-        var publishers = await _connection.QueryAsync<PublisherDto>(sql, null, transaction);
+        var publishers = await dbConnection.QueryAsync<PublisherDto>(sql, null, transaction);
         var output = new List<Publisher>();
         foreach (var publisher in publishers)
         {
@@ -78,8 +88,11 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         return output;
     }
 
-    public async Task<Publisher> GetPublisherAsync(PublisherId publisherId, IDbTransaction? transaction)
+    public async Task<Publisher> GetPublisherAsync(PublisherId publisherId,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
         var sql = @"SELECT [PublisherId],
                            [Name],
                            [Website],
@@ -87,18 +100,21 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
                       FROM [dbo].[Publishers]
                      WHERE [Id] = @Id";
 
-        var publisher = await _connection.QuerySingleOrDefaultAsync<Publisher>(sql, new { Id = publisherId.Value }, transaction);
+        var publisher = await dbConnection.QuerySingleOrDefaultAsync<Publisher>(sql, new { Id = publisherId.Value }, transaction);
         return publisher;
     }
 
-    public async Task UpdatePublisherAsync(Publisher publisher, IDbTransaction? transaction)
+    public async Task UpdatePublisherAsync(Publisher publisher, 
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
         var sql = @"UPDATE [dbo].[Publishers]
                        SET [Name] = @Name,
                            [Website] = @Website
                      WHERE [Id] = @Id";
 
-        await _connection.ExecuteAsync(sql, new
+        await dbConnection.ExecuteAsync(sql, new
         {
             Name = publisher.Name,
             Website = publisher.Website,

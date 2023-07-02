@@ -5,7 +5,7 @@ using System.Data;
 
 
 namespace BookBuddy.Infrastructure.Persistence;
-internal class SqlConnectionFactory : ISqlConnectionFactory
+internal class SqlConnectionFactory : IDbConnectionFactory
 {
     private readonly IConfiguration _configuration;
 

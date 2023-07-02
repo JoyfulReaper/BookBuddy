@@ -22,7 +22,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddPersistence(this IServiceCollection services)
     {
-        services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+        services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
         services.AddTransient<IBookRepository, BookRepository>();
         services.AddTransient<IProgrammingLanguageRepository, ProgrammingLanguageRepository>();
         services.AddTransient<IAuthorRepository, AuthorRepository>();

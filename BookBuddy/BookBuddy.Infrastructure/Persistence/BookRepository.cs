@@ -9,29 +9,37 @@ using System.Data;
 namespace BookBuddy.Infrastructure.Persistence;
 internal class BookRepository : IBookRepository, IDisposable
 {
-    private readonly IDbConnection _dbConnection;
+    private readonly IDbConnection _connection;
     private readonly IAuthorRepository _authorRepository;
     private readonly IBookFormatRepository _bookFormatRepository;
     private readonly IProgrammingLanguageRepository _programmingLanguageRepository;
     private readonly IPublisherRepository _publisherRepository;
 
-    public BookRepository(ISqlConnectionFactory sqlConnectionFactory,
+    public BookRepository(IDbConnectionFactory sqlConnectionFactory,
         IAuthorRepository authorRepository,
         IBookFormatRepository bookFormatRepository,
         IProgrammingLanguageRepository programmingLanguageRepository,
         IPublisherRepository publisherRepository)
     {
-        _dbConnection = sqlConnectionFactory.CreateConnection();
+        _connection = sqlConnectionFactory.CreateConnection();
         _authorRepository = authorRepository;
         _bookFormatRepository = bookFormatRepository;
         _programmingLanguageRepository = programmingLanguageRepository;
         _publisherRepository = publisherRepository;
     }
 
-    public async Task<BookId> AddBookAsync(Book book, IDbTransaction? transaction)
+    public async Task<BookId> AddBookAsync(Book book, 
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
-        _dbConnection.Open();
-        var dbTransaction = transaction ?? _dbConnection.BeginTransaction();
+        if (book is null)
+            throw new ArgumentNullException(nameof(book));
+
+        var dbConnection = connection ?? _connection;
+        if(dbConnection.State != ConnectionState.Open)
+            dbConnection.Open();
+
+        using var dbTransaction = transaction ?? dbConnection.BeginTransaction();
         try
         {
             int? authorId = null;
@@ -39,13 +47,13 @@ internal class BookRepository : IBookRepository, IDisposable
             int? bookFormatId = null;
             int? programmingLanguageId = null;
             if (book.Author is not null)
-                authorId = (await _authorRepository.AddAuthorAsync(book.Author, dbTransaction)).Value;
+                authorId = (await _authorRepository.AddAuthorAsync(book.Author, dbConnection, dbTransaction)).Value;
             if (book.Publisher is not null)
-                publisherId = (await _publisherRepository.AddPublisherAsync(book.Publisher, dbTransaction)).Value;
+                publisherId = (await _publisherRepository.AddPublisherAsync(book.Publisher, dbConnection, dbTransaction)).Value;
             if (book.BookFormat is not null)
-                bookFormatId = (await _bookFormatRepository.AddBookFormatAsync(book.BookFormat, dbTransaction)).Value;
+                bookFormatId = (await _bookFormatRepository.AddBookFormatAsync(book.BookFormat, dbConnection, dbTransaction)).Value;
             if (book.ProgrammingLanguage is not null)
-                programmingLanguageId = authorId = (await _programmingLanguageRepository.AddProgrammingLanguageAsync(book.ProgrammingLanguage, dbTransaction)).Value;
+                programmingLanguageId = authorId = (await _programmingLanguageRepository.AddProgrammingLanguageAsync(book.ProgrammingLanguage, dbConnection, dbTransaction)).Value;
 
 
             var booksql = @"INSERT INTO [dbo].[Books]
@@ -72,7 +80,7 @@ internal class BookRepository : IBookRepository, IDisposable
                                     ,@Notes)
                             SELECT CAST(SCOPE_IDENTITY() as int)";
 
-            var bookId = await _dbConnection.ExecuteScalarAsync<int>(booksql, 
+            var bookId = await dbConnection.ExecuteScalarAsync<int>(booksql, 
                 new {
                     book.Title,
                     AuthorId = authorId,
@@ -97,67 +105,79 @@ internal class BookRepository : IBookRepository, IDisposable
         }
     }
 
-    public async Task<bool> DeleteBookAsync(BookId id, IDbTransaction? transaction)
+    public async Task<bool> DeleteBookAsync(BookId id, 
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
+
         var sql = @"UPDATE [dbo].[Books]
                         SET [DateDeleted] = SYSUTCDATETIME()
                         WHERE BookId = @BookId;";
 
-         return await _dbConnection.ExecuteAsync(sql, new { BookId = id.Value }, transaction) > 0;
+         return await dbConnection.ExecuteAsync(sql, new { BookId = id.Value }, transaction) > 0;
     }
 
     public void Dispose()
     {
-        _dbConnection.Dispose();
+        _connection.Dispose();
     }
 
-    public async Task<IEnumerable<Book>> GetAllBooksAsync(IDbTransaction? transaction)
+    public async Task<IEnumerable<Book>> GetAllBooksAsync(IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
         var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
                           FROM [dbo].[Books] WHERE DateDeleted IS NULL;";
 
-        var books = await _dbConnection.QueryAsync<BookDto>(sql, transaction);
+        var books = await dbConnection.QueryAsync<BookDto>(sql, transaction);
 
         throw new NotImplementedException();
     }
 
-    public async Task<Book?> GetBookAsync(BookId id, IDbTransaction? transaction)
+    public async Task<Book?> GetBookAsync(BookId id,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
-        var transactionToUse = transaction ?? _dbConnection.BeginTransaction();
+        var dbConnection = connection ?? _connection;
+        var transactionToUse = transaction ?? dbConnection.BeginTransaction();
 
         var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
                           FROM [dbo].[Books] WHERE DateDeleted IS NULL AND BookId = @BookId;";
 
-        var book = await _dbConnection.QuerySingleOrDefaultAsync<BookDto>(sql, new { id = id.Value }, transactionToUse);
+        var book = await dbConnection.QuerySingleOrDefaultAsync<BookDto>(sql, new { BookId = id.Value }, transactionToUse);
 
         Author? author = null;
         if( book.AuthorId is not null)
         {
-             author = await _authorRepository.GetAuthorAsync(AuthorId.Create(book.AuthorId.Value), transactionToUse);
+             author = await _authorRepository.GetAuthorAsync(AuthorId.Create(book.AuthorId.Value), dbConnection, transactionToUse);
         }
 
         Publisher? publisher = null;
         if(book.PublisherId is not null)
         {
-            publisher = await _publisherRepository.GetPublisherAsync(PublisherId.Create(book.PublisherId.Value), transactionToUse);
+            publisher = await _publisherRepository.GetPublisherAsync(PublisherId.Create(book.PublisherId.Value), dbConnection, transactionToUse);
         }
 
         BookFormat? bookFormat = null;
         if(book.BookFormatId is not null)
         {
-            bookFormat = await _bookFormatRepository.GetBookFormatAsync(BookFormatId.Create(book.BookFormatId.Value), transactionToUse);
+            bookFormat = await _bookFormatRepository.GetBookFormatAsync(BookFormatId.Create(book.BookFormatId.Value), dbConnection, transactionToUse);
         }
 
         ProgrammingLanguage? programmingLanguage = null;
         if(book.ProgrammingLanguageId is not null)
         {
-            programmingLanguage = await _programmingLanguageRepository.GetProgrammingLanguageAsync(ProgrammingLanguageId.Create(book.ProgrammingLanguageId.Value), transactionToUse);
+            programmingLanguage = await _programmingLanguageRepository.GetProgrammingLanguageAsync(ProgrammingLanguageId.Create(book.ProgrammingLanguageId.Value), dbConnection, transactionToUse);
         }
 
+        transactionToUse.Commit();
         return BookDto.ToBook(book, author, publisher, bookFormat, programmingLanguage);
     }
 
-    public Task UpdateBookAsync(Book book, IDbTransaction? transaction)
+    public Task UpdateBookAsync(Book book, 
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         throw new NotImplementedException();
     }

@@ -6,9 +6,21 @@ namespace BookBuddy.Application.Common.Interfaces.Persistence;
 
 public interface IPublisherRepository
 {
-    Task<Publisher> GetPublisherAsync(PublisherId publisherId, IDbTransaction? transaction = null);
-    Task<IEnumerable<Publisher>> GetAllPublishersAsync(IDbTransaction? transaction = null);
-    Task<PublisherId> AddPublisherAsync(Publisher author, IDbTransaction? transaction = null);
-    Task UpdatePublisherAsync(Publisher author, IDbTransaction? transaction = null);
-    Task<bool> DeletePublisherAsync(int id, IDbTransaction? transaction = null);
+    Task<Publisher> GetPublisherAsync(PublisherId publisherId,
+        IDbConnection? connection = null, 
+        IDbTransaction? transaction = null);
+    Task<IEnumerable<Publisher>> GetAllPublishersAsync(IDbConnection? connection = null, 
+        IDbTransaction? transaction = null);
+
+    Task<PublisherId> AddPublisherAsync(Publisher author,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
+
+    Task UpdatePublisherAsync(Publisher author,
+        IDbConnection? connection = null, 
+        IDbTransaction? transaction = null);
+
+    Task<bool> DeletePublisherAsync(PublisherId id, 
+        IDbConnection? connection = null, 
+        IDbTransaction? transaction = null);
 }

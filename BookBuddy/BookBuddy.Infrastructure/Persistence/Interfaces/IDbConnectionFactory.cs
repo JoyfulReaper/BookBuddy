@@ -1,7 +1,7 @@
 ﻿using System.Data;
 
 namespace BookBuddy.Infrastructure.Persistence.Interfaces;
-internal interface ISqlConnectionFactory
+internal interface IDbConnectionFactory
 {
     IDbConnection CreateConnection();
 }

@@ -11,35 +11,43 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
 {
     private readonly IDbConnection _connection;
 
-    public BookFormatRepository(ISqlConnectionFactory sqlConnectionFactory)
+    public BookFormatRepository(IDbConnectionFactory sqlConnectionFactory)
     {
         _connection = sqlConnectionFactory.CreateConnection();    
     }
 
-    public async Task<BookFormatId> AddBookFormatAsync(BookFormat bookFormat, IDbTransaction? transaction)
+    public async Task<BookFormatId> AddBookFormatAsync(BookFormat bookFormat,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
+
         var sql = @"INSERT INTO [dbo].[BookFormats]
                             (Format)
-                          VALEUS
+                          VALUES
                              (@Format)
                           SELECT CAST (SCOPE_IDENTITY() AS INT)";
 
-        var bookFormatId = await _connection.ExecuteScalarAsync<int>(sql,
+        var bookFormatId = await dbConnection.ExecuteScalarAsync<int>(sql,
             new
             {
-                BookFormatId = bookFormat.Id.Value
+                bookFormat.Format
             }, transaction);
 
         return BookFormatId.Create(bookFormatId);
     }
 
-    public async Task<bool> DeleteBookFormatAsync(BookFormatId id, IDbTransaction? transaction)
+    public async Task<bool> DeleteBookFormatAsync(BookFormatId id, 
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
+
         var bookfomratIsAssigned = @"SELECT COUNT(*)
                                         FROM [dbo].[Books]
                                        WHERE [BookFormatId] = @BookFormatId;";
 
-        var isAssigned = await _connection.ExecuteScalarAsync<int>(bookfomratIsAssigned, new { id }, transaction);
+        var isAssigned = await dbConnection.ExecuteScalarAsync<int>(bookfomratIsAssigned, new { id }, transaction);
 
         if (isAssigned > 0)
         {
@@ -49,7 +57,7 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
         var sql = @"DELETE FROM [dbo].[BookFormats]
                       WHERE [Id] = @Id";
 
-        return (await _connection.ExecuteAsync(sql, new { id }, transaction)) > 0;
+        return (await dbConnection.ExecuteAsync(sql, new { id }, transaction)) > 0;
     }
 
     public void Dispose()
@@ -57,10 +65,13 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
         _connection.Dispose();
     }
 
-    public async Task<IEnumerable<BookFormat>> GetAllBookFormatsAsync(IDbTransaction? transaction)
+    public async Task<IEnumerable<BookFormat>> GetAllBookFormatsAsync(IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
+
         var sql = "SELECT BookFormatId, Format, DateCreated FROM BookFormats WHERE BookFormatId = @BookFormatId";
-        var bookFormats = await _connection.QueryAsync<BookFormatDto>(sql, null, transaction);
+        var bookFormats = await dbConnection.QueryAsync<BookFormatDto>(sql, null, transaction);
 
         var output = new List<BookFormat>();
         foreach(var book in bookFormats)
@@ -75,21 +86,27 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
         return output;
     }
 
-    public async Task<BookFormat?> GetBookFormatAsync(BookFormatId id, IDbTransaction? transaction)
+    public async Task<BookFormat?> GetBookFormatAsync(BookFormatId id,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        var dbConnection = connection ?? _connection;
         var sql = "SELECT BookFormatId, Format, DateCreated FROM BookFormats WHERE BookFormatId = @BookFormatId";
-        var bookFormat = await _connection.QuerySingleOrDefaultAsync<BookFormatDto>(sql, new { BookFormatId = id.Value }, transaction);
+        var bookFormat = await dbConnection.QuerySingleOrDefaultAsync<BookFormatDto>(sql, new { BookFormatId = id.Value }, transaction);
 
         return BookFormatDto.ToBookFormat(bookFormat);
     }
 
-    public Task UpdateBookFormatAsync(BookFormat bookFormat, IDbTransaction? transaction)
+    public Task UpdateBookFormatAsync(BookFormat bookFormat, 
+        IDbConnection? connection,
+        IDbTransaction? transaction)
     {
+        var dbConnection = connection ?? _connection;
         var sql = @"UPDATE [dbo].[BookFormats]
                        SET [Format] = @Format
                      WHERE [BookFormatId] = @BookFormatId";
 
-        return _connection.ExecuteAsync(sql, new { bookFormat.Id.Value, bookFormat.Format }, transaction);
+        return dbConnection.ExecuteAsync(sql, new { bookFormat.Id.Value, bookFormat.Format }, transaction);
     }
 }
 
