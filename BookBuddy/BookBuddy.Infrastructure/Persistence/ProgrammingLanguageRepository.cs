@@ -33,9 +33,20 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, I
         return ProgrammingLanguageId.Create(programmingLanguageId);
     }
 
-    public Task DeleteProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction)
+    public async Task<bool> DeleteProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var isProgrammingLanguageAssignedQuery = "SELECT COUNT(*) FROM [dbo].[Books] WHERE [ProgrammingLanguageId] = @ProgrammingLanguageId";
+        var isProgrammingLangaugeAssigned = await _connection.ExecuteScalarAsync<int>(isProgrammingLanguageAssignedQuery, new { id }, transaction);
+
+        if (isProgrammingLangaugeAssigned > 0)
+        {
+            throw new Exception("Cannot delete programming language that is assigned to books.");
+        }
+
+        var sql = @"DELETE FROM [dbo].[ProgrammingLanguages]
+                          WHERE [Id] = @Id";
+
+        return (await _connection.ExecuteAsync(sql, new { id }, transaction)) > 0;
     }
 
     public void Dispose()
@@ -43,18 +54,58 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, I
         _connection.Dispose();
     }
 
-    public Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync(IDbTransaction? transaction)
+    public async Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync(IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"SELECT ProgrammingLanguageId, Language, DateCreated
+                          FROM [dbo].[ProgrammingLanguages];";
+
+        var langs = await _connection.QueryAsync<ProgrammingLanguageDto>(sql, null, transaction);
+        var output = new List<ProgrammingLanguage>();
+        foreach (var lang in langs)
+        {
+            var langToAdd = ProgrammingLanguageDto.ToProgrammingLanguage(lang);
+            if (langToAdd is not null)
+                output.Add(langToAdd);
+        }
+
+        return output;
     }
 
-    public Task<ProgrammingLanguage> GetProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction)
+    public async Task<ProgrammingLanguage?> GetProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"SELECT ProgrammingLanguageId, Language, DateCreated
+                      FROM [dbo].[ProgrammingLanguages]
+                     WHERE [ProgrammingLanguageId] = @ProgrammingLanguageId";
+
+        var lang = await _connection.QuerySingleOrDefaultAsync<ProgrammingLanguageDto>(sql, new { id }, transaction);
+        return ProgrammingLanguageDto.ToProgrammingLanguage(lang);
     }
 
-    public Task UpdateProgrammingLanguageAsync(ProgrammingLanguage author, IDbTransaction? transaction)
+    public async Task UpdateProgrammingLanguageAsync(ProgrammingLanguage lang, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"UPDATE [dbo].[ProgrammingLanguages]
+                       SET [Language] = @Language
+                     WHERE [ProgrammingLanguageId] = @ProgrammingLanguageId";
+
+        await _connection.ExecuteAsync(sql, new { lang.Language, ProgrammingLanguageId = lang.Id }, transaction);
+    }
+}
+
+internal class ProgrammingLanguageDto
+{
+    public int ProgrammingLanguageId { get; set; }
+    public string Language { get; set; } = default!;
+    public DateTime DateCreated { get; set; }
+
+    public static ProgrammingLanguage? ToProgrammingLanguage(ProgrammingLanguageDto? dto)
+    {
+        if (dto is null)
+        {
+            return null;
+        }
+
+        return ProgrammingLanguage.Create(Domain.BookAggregate.ValueObjects.ProgrammingLanguageId.Create(dto.ProgrammingLanguageId),
+            dto.Language,
+            dto.DateCreated);
     }
 }
