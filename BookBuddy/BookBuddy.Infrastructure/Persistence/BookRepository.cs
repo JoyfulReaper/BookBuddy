@@ -34,6 +34,20 @@ internal class BookRepository : IBookRepository, IDisposable
         var dbTransaction = transaction ?? _dbConnection.BeginTransaction();
         try
         {
+            int? authorId = null;
+            int? publisherId = null;
+            int? bookFormatId = null;
+            int? programmingLanguageId = null;
+            if (book.Author is not null)
+                authorId = (await _authorRepository.AddAuthorAsync(book.Author, dbTransaction)).Value;
+            if (book.Publisher is not null)
+                publisherId = (await _publisherRepository.AddPublisherAsync(book.Publisher, dbTransaction)).Value;
+            if (book.BookFormat is not null)
+                bookFormatId = (await _bookFormatRepository.AddBookFormatAsync(book.BookFormat, dbTransaction)).Value;
+            if (book.ProgrammingLanguage is not null)
+                programmingLanguageId = authorId = (await _programmingLanguageRepository.AddProgrammingLanguageAsync(book.ProgrammingLanguage, dbTransaction)).Value;
+
+
             var booksql = @"INSERT INTO [dbo].[Books]
                                     ([Title]
                                     ,[AuthorId]
@@ -61,10 +75,10 @@ internal class BookRepository : IBookRepository, IDisposable
             var bookId = await _dbConnection.ExecuteScalarAsync<int>(booksql, 
                 new {
                     book.Title,
-                    AuthorId = book.Author?.Id.Value,
-                    PublisherId = book.Publisher?.Id.Value,
-                    BookFormatId = book.BookFormat?.Id.Value,
-                    ProgrammingLanguageId = book.ProgrammingLanguage?.Id.Value,
+                    AuthorId = authorId,
+                    PublisherId = publisherId,
+                    BookFormatId = bookFormatId,
+                    ProgrammingLanguageId = programmingLanguageId,
                     book.Isbn,
                     book.PublicationYear,
                     book.Genre,
@@ -72,15 +86,6 @@ internal class BookRepository : IBookRepository, IDisposable
                     book.Notes
                 },
                 dbTransaction);
-
-            if (book.Author is not null)
-                await _authorRepository.AddAuthorAsync(book.Author, dbTransaction);
-            if(book.Publisher is not null)
-                await _publisherRepository.AddPublisherAsync(book.Publisher, dbTransaction);
-            if(book.BookFormat is not null)
-                await _bookFormatRepository.AddBookFormatAsync(book.BookFormat, dbTransaction);
-            if(book.ProgrammingLanguage is not null)
-                await _programmingLanguageRepository.AddProgrammingLanguageAsync(book.ProgrammingLanguage, dbTransaction);
 
             dbTransaction.Commit();
             return BookId.Create(bookId);
