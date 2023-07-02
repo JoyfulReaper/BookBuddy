@@ -5,7 +5,6 @@ namespace BookBuddy.Domain.BookAggregate.Entities;
 
 public class Publisher : Entity<PublisherId>
 {
-    public PublisherId PublisherId { get; }
     public string Name { get; } = default!;
     public string? Website { get; } = default!;
     public DateTime DateCreated { get; }
@@ -15,7 +14,7 @@ public class Publisher : Entity<PublisherId>
         string? website,
         DateTime dateCreated) : base(publisherId)
     {
-        PublisherId = publisherId;
+        Id = publisherId;
         Name = name;
         Website = website;
         DateCreated = dateCreated;

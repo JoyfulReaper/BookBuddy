@@ -9,12 +9,11 @@ public class Author : Entity<AuthorId>
         string? firstName,
         string lastName) : base(authorId)
     {
-        AuthorId = authorId;
+        Id = authorId;
         FirstName = firstName;
         LastName = lastName;
     }
 
-    public AuthorId AuthorId { get; }
     public string? FirstName { get; } = default!;
     public string LastName { get; } = default!;
     public DateTime DateCreated { get; set; }

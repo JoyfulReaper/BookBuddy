@@ -5,7 +5,6 @@ namespace BookBuddy.Domain.BookAggregate.Entities;
 
 public class ProgrammingLanguage : Entity<ProgrammingLanguageId>
 {
-    public ProgrammingLanguageId ProgrammingLanguageId { get; }
     public string Language { get; } = default!;
     public DateTime DateCreated { get; }
 
@@ -14,7 +13,7 @@ public class ProgrammingLanguage : Entity<ProgrammingLanguageId>
         string language,
         DateTime dateCreated) : base(programmingLanguageId)
     {
-        ProgrammingLanguageId = programmingLanguageId;
+        Id = programmingLanguageId;
         Language = language;
         DateCreated = dateCreated;
     }

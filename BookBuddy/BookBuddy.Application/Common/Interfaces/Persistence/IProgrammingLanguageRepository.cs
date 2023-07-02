@@ -6,9 +6,9 @@ namespace BookBuddy.Application.Common.Interfaces.Persistence;
 
 public interface IProgrammingLanguageRepository
 {
-    Task<ProgrammingLanguage> GetProgrammingLanguageAsync(ProgrammingLanguageId id);
-    Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync();
-    Task<ProgrammingLanguageId> AddProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage, IDbTransaction? transaction);
-    Task UpdateProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage, IDbTransaction? transaction);
-    Task DeleteProgrammingLanguageAsync(ProgrammingLanguageId id);
+    Task<ProgrammingLanguage> GetProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction = null);
+    Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync(IDbTransaction? transaction = null);
+    Task<ProgrammingLanguageId> AddProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage, IDbTransaction? transaction = null);
+    Task UpdateProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage, IDbTransaction? transaction = null);
+    Task DeleteProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction = null);
 }

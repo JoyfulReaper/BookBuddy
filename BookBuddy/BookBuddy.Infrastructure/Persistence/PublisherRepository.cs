@@ -7,11 +7,11 @@ using System.Data;
 
 namespace BookBuddy.Infrastructure.Persistence;
 
-internal class PublisherRepository : IPublisherRepository
+internal class PublisherRepository : IPublisherRepository, IDisposable
 {
     private readonly IDbConnection _connection;
 
-    public PublisherRepository(ISqlConnectionFactory sqlConnectionFactory)
+    public PublisherRepository(ISqlConnectionFactory sqlConnectionFactory, IDbTransaction? transaction)
     {
         _connection = sqlConnectionFactory.CreateConnection();
     }
@@ -34,17 +34,22 @@ internal class PublisherRepository : IPublisherRepository
         return PublisherId.Create(publisherId);
     }
 
-    public Task DeletePublisherAsync(int id)
+    public Task DeletePublisherAsync(int id, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Publisher>> GetAllPublishersAsync()
+    public void Dispose()
+    {
+        _connection.Dispose();
+    }
+
+    public Task<IEnumerable<Publisher>> GetAllPublishersAsync(IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Publisher> GetPublisherAsync(int id)
+    public Task<Publisher> GetPublisherAsync(int id, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }

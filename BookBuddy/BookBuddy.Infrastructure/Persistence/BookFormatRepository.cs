@@ -7,7 +7,7 @@ using System.Data;
 
 
 namespace BookBuddy.Infrastructure.Persistence;
-internal class BookFormatRepository : IBookFormatRepository
+internal class BookFormatRepository : IBookFormatRepository, IDisposable
 {
     private readonly IDbConnection _connection;
 
@@ -27,23 +27,28 @@ internal class BookFormatRepository : IBookFormatRepository
         var bookFormatId = await _connection.ExecuteScalarAsync<int>(sql,
             new
             {
-                bookFormat.BookFormatId
+                BookFormatId = bookFormat.Id.Value
             }, transaction);
 
         return BookFormatId.Create(bookFormatId);
     }
 
-    public Task DeleteBookFormatAsync(BookFormatId id)
+    public Task DeleteBookFormatAsync(BookFormatId id, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<BookFormat>> GetAllBookFormatsAsync()
+    public void Dispose()
+    {
+        _connection.Dispose();
+    }
+
+    public Task<IEnumerable<BookFormat>> GetAllBookFormatsAsync(IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }
 
-    public Task<BookFormat> GetBookFormatAsync(BookFormatId id)
+    public Task<BookFormat> GetBookFormatAsync(BookFormatId id, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }

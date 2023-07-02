@@ -27,9 +27,9 @@ internal class BookRepository : IBookRepository, IDisposable
         _publisherRepository = publisherRepository;
     }
 
-    public async Task<BookId> AddBookAsync(Book book)
+    public async Task<BookId> AddBookAsync(Book book, IDbTransaction? transaction)
     {
-        var transaction = _dbConnection.BeginTransaction();
+        var dbTransaction = transaction ?? _dbConnection.BeginTransaction();
         try
         {
             var booksql = @"INSERT INTO [dbo].[Books]
@@ -69,7 +69,7 @@ internal class BookRepository : IBookRepository, IDisposable
                     book.Website,
                     book.Notes
                 },
-                transaction);
+                dbTransaction);
 
             if (book.Author is not null)
                 await _authorRepository.AddAuthorAsync(book.Author, transaction);
@@ -90,9 +90,13 @@ internal class BookRepository : IBookRepository, IDisposable
         }
     }
 
-    public Task DeleteBookAsync(BookId id)
+    public async Task<bool> DeleteBookAsync(BookId id, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"UPDATE [dbo].[Books]
+                        SET [DateDeleted] = SYSUTCDATETIME()
+                        WHERE BookId = @BookId;";
+
+         return await _dbConnection.ExecuteAsync(sql, new { BookId = id.Value }, transaction) > 0;
     }
 
     public void Dispose()
@@ -100,17 +104,23 @@ internal class BookRepository : IBookRepository, IDisposable
         _dbConnection.Dispose();
     }
 
-    public Task<IEnumerable<Book>> GetAllBooksAsync()
+    public async Task<IEnumerable<Book>> GetAllBooksAsync(IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
+                          FROM [dbo].[Books] WHERE DateDeleted IS NULL;";
+
+        return await _dbConnection.QueryAsync<Book>(sql, transaction);
     }
 
-    public Task<Book?> GetBookAsync(BookId id)
+    public async Task<Book?> GetBookAsync(BookId id, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
+                          FROM [dbo].[Books] WHERE DateDeleted IS NULL AND BookId = @BookId;";
+
+        return await _dbConnection.QuerySingleOrDefaultAsync<Book>(sql, new { id = id.Value }, transaction);
     }
 
-    public Task UpdateBookAsync(Book book)
+    public Task UpdateBookAsync(Book book, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }

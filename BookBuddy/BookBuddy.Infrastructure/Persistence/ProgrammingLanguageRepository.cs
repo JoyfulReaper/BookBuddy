@@ -7,11 +7,11 @@ using System.Data;
 
 
 namespace BookBuddy.Infrastructure.Persistence;
-internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository
+internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, IDisposable
 {
     private readonly IDbConnection _connection;
 
-    public ProgrammingLanguageRepository(ISqlConnectionFactory sqlConnectionFactory)
+    public ProgrammingLanguageRepository(ISqlConnectionFactory sqlConnectionFactory, IDbTransaction? transaction)
     {
         _connection = sqlConnectionFactory.CreateConnection();
     }
@@ -33,17 +33,22 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository
         return ProgrammingLanguageId.Create(programmingLanguageId);
     }
 
-    public Task DeleteProgrammingLanguageAsync(ProgrammingLanguageId id)
+    public Task DeleteProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync()
+    public void Dispose()
+    {
+        _connection.Dispose();
+    }
+
+    public Task<IEnumerable<ProgrammingLanguage>> GetAllProgrammingLanguagesAsync(IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ProgrammingLanguage> GetProgrammingLanguageAsync(ProgrammingLanguageId id)
+    public Task<ProgrammingLanguage> GetProgrammingLanguageAsync(ProgrammingLanguageId id, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
     }

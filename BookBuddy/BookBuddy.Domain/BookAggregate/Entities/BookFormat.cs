@@ -5,7 +5,6 @@ namespace BookBuddy.Domain.BookAggregate.Entities;
 
 public class BookFormat : Entity<BookFormatId>
 {
-    public BookFormatId BookFormatId { get; }
     public string Format { get; } = default!;
     public DateTime DateCreated { get; }
 
@@ -13,7 +12,7 @@ public class BookFormat : Entity<BookFormatId>
         string format,
         DateTime dateCreated) : base(bookFormatId)
     {
-        BookFormatId = bookFormatId;
+        Id = bookFormatId;
         Format = format;
         DateCreated = dateCreated;
     }
