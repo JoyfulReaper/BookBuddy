@@ -10,5 +10,5 @@ public interface IPublisherRepository
     Task<IEnumerable<Publisher>> GetAllPublishersAsync(IDbTransaction? transaction = null);
     Task<PublisherId> AddPublisherAsync(Publisher author, IDbTransaction? transaction = null);
     Task UpdatePublisherAsync(Publisher author, IDbTransaction? transaction = null);
-    Task DeletePublisherAsync(int id, IDbTransaction? transaction = null);
+    Task<bool> DeletePublisherAsync(int id, IDbTransaction? transaction = null);
 }

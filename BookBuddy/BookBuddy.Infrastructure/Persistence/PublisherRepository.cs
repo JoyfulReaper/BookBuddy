@@ -34,9 +34,22 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         return PublisherId.Create(publisherId);
     }
 
-    public Task DeletePublisherAsync(int id, IDbTransaction? transaction)
+    public async Task<bool> DeletePublisherAsync(int id, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var checkIfPublisherHasBooksSql = @"SELECT COUNT(*)
+                                            FROM [dbo].[Books]
+                                           WHERE [PublisherId] = @PublisherId;";
+
+        var hasBooks = await _connection.ExecuteScalarAsync<int>(checkIfPublisherHasBooksSql, new { id }, transaction);
+        if (hasBooks > 0)
+        {
+            throw new Exception("Cannot delete publisher that has books.");
+        }
+
+        var sql = @"DELETE FROM [dbo].[Publishers]
+                      WHERE [Id] = @Id";
+
+        return (await _connection.ExecuteAsync(sql, new { id }, transaction)) > 0;
     }
 
     public void Dispose()
@@ -44,18 +57,58 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         _connection.Dispose();
     }
 
-    public Task<IEnumerable<Publisher>> GetAllPublishersAsync(IDbTransaction? transaction)
+    public async Task<IEnumerable<Publisher>> GetAllPublishersAsync(IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"SELECT [PublisherId],
+                           [Name],
+                           [Website],
+                           [DateCreated]
+                      FROM [dbo].[Publishers]
+                     WHERE [Id] = @Id";
+
+        var publishers = await _connection.QueryAsync<PublisherDto>(sql, null, transaction);
+        var output = new List<Publisher>();
+        foreach (var publisher in publishers)
+        {
+            var publisherToAdd = PublisherDto.ToPublisher(publisher);
+            if(publisherToAdd is not null)
+                output.Add(publisherToAdd);
+        }
+
+        return output;
     }
 
-    public Task<Publisher> GetPublisherAsync(int id, IDbTransaction? transaction)
+    public async Task<Publisher> GetPublisherAsync(int id, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"SELECT [PublisherId],
+                           [Name],
+                           [Website],
+                           [DateCreated]
+                      FROM [dbo].[Publishers]
+                     WHERE [Id] = @Id";
+
+        var publisher = await _connection.QuerySingleOrDefaultAsync<Publisher>(sql, new { id }, transaction);
+        return publisher;
     }
 
     public Task UpdatePublisherAsync(Publisher author, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
+    }
+}
+
+internal class PublisherDto
+{
+    public int PublisherId { get; set; }
+    public string Name { get; set; } = default!;
+    public string Website { get; set; } = default!;
+    public DateTime DateCreated { get; set; }
+
+    public static Publisher? ToPublisher(PublisherDto? dto)
+    {
+        return Publisher.Create(Domain.BookAggregate.ValueObjects.PublisherId.Create(dto.PublisherId),
+            dto.Name,
+            dto.Website, 
+            dto.DateCreated);
     }
 }
