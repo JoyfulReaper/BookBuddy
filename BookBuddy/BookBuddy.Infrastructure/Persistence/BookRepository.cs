@@ -1,5 +1,6 @@
 ﻿using BookBuddy.Application.Common.Interfaces.Persistence;
 using BookBuddy.Domain.BookAggregate;
+using BookBuddy.Domain.BookAggregate.Entities;
 using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Infrastructure.Persistence.Interfaces;
 using Dapper;
@@ -72,20 +73,20 @@ internal class BookRepository : IBookRepository, IDisposable
                 dbTransaction);
 
             if (book.Author is not null)
-                await _authorRepository.AddAuthorAsync(book.Author, transaction);
+                await _authorRepository.AddAuthorAsync(book.Author, dbTransaction);
             if(book.Publisher is not null)
-                await _publisherRepository.AddPublisherAsync(book.Publisher, transaction);
+                await _publisherRepository.AddPublisherAsync(book.Publisher, dbTransaction);
             if(book.BookFormat is not null)
-                await _bookFormatRepository.AddBookFormatAsync(book.BookFormat, transaction);
+                await _bookFormatRepository.AddBookFormatAsync(book.BookFormat, dbTransaction);
             if(book.ProgrammingLanguage is not null)
-                await _programmingLanguageRepository.AddProgrammingLanguageAsync(book.ProgrammingLanguage, transaction);
+                await _programmingLanguageRepository.AddProgrammingLanguageAsync(book.ProgrammingLanguage, dbTransaction);
 
-            transaction.Commit();
+            dbTransaction.Commit();
             return BookId.Create(bookId);
         }
         catch
         {
-            transaction.Rollback();
+            dbTransaction.Rollback();
             throw;
         }
     }
@@ -109,19 +110,84 @@ internal class BookRepository : IBookRepository, IDisposable
         var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
                           FROM [dbo].[Books] WHERE DateDeleted IS NULL;";
 
-        return await _dbConnection.QueryAsync<Book>(sql, transaction);
+        var books = await _dbConnection.QueryAsync<BookDto>(sql, transaction);
+
+        throw new NotImplementedException();
     }
 
     public async Task<Book?> GetBookAsync(BookId id, IDbTransaction? transaction)
     {
+        var transactionToUse = transaction ?? _dbConnection.BeginTransaction();
+
         var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
                           FROM [dbo].[Books] WHERE DateDeleted IS NULL AND BookId = @BookId;";
 
-        return await _dbConnection.QuerySingleOrDefaultAsync<Book>(sql, new { id = id.Value }, transaction);
+        var book = await _dbConnection.QuerySingleOrDefaultAsync<BookDto>(sql, new { id = id.Value }, transactionToUse);
+
+        Author? author = null;
+        if( book.AuthorId is not null)
+        {
+             author = await _authorRepository.GetAuthorAsync(AuthorId.Create(book.AuthorId.Value), transactionToUse);
+        }
+
+        Publisher? publisher = null;
+        if(book.PublisherId is not null)
+        {
+            publisher = await _publisherRepository.GetPublisherAsync(PublisherId.Create(book.PublisherId.Value), transactionToUse);
+        }
+
+        BookFormat? bookFormat = null;
+        if(book.BookFormatId is not null)
+        {
+            bookFormat = await _bookFormatRepository.GetBookFormatAsync(BookFormatId.Create(book.BookFormatId.Value), transactionToUse);
+        }
+
+        ProgrammingLanguage? programmingLanguage = null;
+        if(book.ProgrammingLanguageId is not null)
+        {
+            programmingLanguage = await _programmingLanguageRepository.GetProgrammingLanguageAsync(ProgrammingLanguageId.Create(book.ProgrammingLanguageId.Value), transactionToUse);
+        }
+
+        return BookDto.ToBook(book, author, publisher, bookFormat, programmingLanguage);
     }
 
     public Task UpdateBookAsync(Book book, IDbTransaction? transaction)
     {
         throw new NotImplementedException();
+    }
+}
+
+internal class BookDto
+{
+    public int BookId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public int? AuthorId { get; set; }
+    public int? PublisherId { get; set; }
+    public int? BookFormatId { get; set; }
+    public int? ProgrammingLanguageId { get; set; }
+    public string? ISBN { get; set; }
+    public int PublicationYear { get; set; }
+    public string? Genre { get; set; }
+    public string? Website { get; set; }
+    public string? Notes { get; set; }
+    public DateTime DateCreated { get; set; }
+
+    public static Book? ToBook(BookDto? dto, Author? author, Publisher? publisher, BookFormat? bookFormat, ProgrammingLanguage? programmingLanguage)
+    {
+        if (dto is null)
+            return null;
+
+        return Book.Create(Domain.BookAggregate.ValueObjects.BookId.Create(dto.BookId),
+            dto.Title,
+            author,
+            publisher,
+            bookFormat,
+            programmingLanguage,
+            dto.ISBN,
+            dto.PublicationYear,
+            dto.Genre,
+            dto.Website,
+            dto.Notes,
+            dto.DateCreated);
     }
 }

@@ -78,7 +78,7 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         return output;
     }
 
-    public async Task<Publisher> GetPublisherAsync(int id, IDbTransaction? transaction)
+    public async Task<Publisher> GetPublisherAsync(PublisherId publisherId, IDbTransaction? transaction)
     {
         var sql = @"SELECT [PublisherId],
                            [Name],
@@ -87,13 +87,22 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
                       FROM [dbo].[Publishers]
                      WHERE [Id] = @Id";
 
-        var publisher = await _connection.QuerySingleOrDefaultAsync<Publisher>(sql, new { id }, transaction);
+        var publisher = await _connection.QuerySingleOrDefaultAsync<Publisher>(sql, new { Id = publisherId.Value }, transaction);
         return publisher;
     }
 
-    public Task UpdatePublisherAsync(Publisher author, IDbTransaction? transaction)
+    public async Task UpdatePublisherAsync(Publisher publisher, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var sql = @"UPDATE [dbo].[Publishers]
+                       SET [Name] = @Name,
+                           [Website] = @Website
+                     WHERE [Id] = @Id";
+
+        await _connection.ExecuteAsync(sql, new
+        {
+            Name = publisher.Name,
+            Website = publisher.Website,
+        }, transaction);
     }
 }
 
