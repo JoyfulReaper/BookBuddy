@@ -2,10 +2,14 @@
 
 public record CreateBookRequest(
     string Title,
-    Author Author,
-    Publisher Publisher,
-    BookFormat BookFormat,
-    ProgrammingLanguage ProgrammingLanguage,
+    int? AuthorId,
+    int? PublisherId,
+    int? BookFormatId,
+    int? ProgrammingLanguageId,
+    Author? Author,
+    Publisher? Publisher,
+    BookFormat? BookFormat,
+    ProgrammingLanguage? ProgrammingLanguage,
     string? Isbn,
     int PublicationYear,
     string? Genre,

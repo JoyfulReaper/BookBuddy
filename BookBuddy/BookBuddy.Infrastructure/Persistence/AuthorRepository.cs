@@ -134,9 +134,9 @@ internal class AuthorRepository : IAuthorRepository, IDisposable
                            [FirstName],
                            [LastName]
                       FROM [dbo].[Authors]
-                     WHERE [Id] = @Id";
+                     WHERE [AuthorId] = @AuthorId";
 
-        var author = await dbConnection.QuerySingleOrDefaultAsync<AuthorDto>(sql, new { Id = id.Value }, transaction);
+        var author = await dbConnection.QuerySingleOrDefaultAsync<AuthorDto>(sql, new { AuthorId = id.Value }, transaction);
         return AuthorDto.ToAuthor(author);
     }
 

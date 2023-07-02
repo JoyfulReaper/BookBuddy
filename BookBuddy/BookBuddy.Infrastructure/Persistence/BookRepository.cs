@@ -42,10 +42,10 @@ internal class BookRepository : IBookRepository, IDisposable
         using var dbTransaction = transaction ?? dbConnection.BeginTransaction();
         try
         {
-            int? authorId = null;
-            int? publisherId = null;
-            int? bookFormatId = null;
-            int? programmingLanguageId = null;
+            int? authorId = book.AuthorId?.Value;
+            int? publisherId = book.PublisherId?.Value;
+            int? bookFormatId = book.BookFormatId?.Value;
+            int? programmingLanguageId = book.ProgrammingLanguageId?.Value;
             if (book.Author is not null)
                 authorId = (await _authorRepository.AddAuthorAsync(book.Author, dbConnection, dbTransaction)).Value;
             if (book.Publisher is not null)
@@ -205,6 +205,10 @@ internal class BookDto
 
         return Book.Create(Domain.BookAggregate.ValueObjects.BookId.Create(dto.BookId),
             dto.Title,
+            dto.AuthorId == null ? null : Domain.BookAggregate.ValueObjects.AuthorId.Create(dto.AuthorId.Value),
+            dto.PublisherId == null ? null : Domain.BookAggregate.ValueObjects.PublisherId.Create(dto.PublisherId.Value),
+            dto.BookFormatId == null ? null : Domain.BookAggregate.ValueObjects.BookFormatId.Create(dto.BookFormatId.Value),
+            dto.ProgrammingLanguageId == null ? null : Domain.BookAggregate.ValueObjects.ProgrammingLanguageId.Create(dto.ProgrammingLanguageId.Value),
             author,
             publisher,
             bookFormat,

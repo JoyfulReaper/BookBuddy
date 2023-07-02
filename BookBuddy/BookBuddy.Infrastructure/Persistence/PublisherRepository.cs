@@ -1,4 +1,5 @@
-﻿using BookBuddy.Application.Common.Interfaces.Persistence;
+﻿using BookBuddy.Application.Common.Exceptions;
+using BookBuddy.Application.Common.Interfaces.Persistence;
 using BookBuddy.Domain.BookAggregate.Entities;
 using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Infrastructure.Persistence.Interfaces;
@@ -17,11 +18,43 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         _connection = sqlConnectionFactory.CreateConnection();
     }
 
-    public async Task<PublisherId> AddPublisherAsync(Publisher author,
+    public async Task<PublisherId?> PublisherExists(string name,
+        string? website, 
+        IDbConnection? connection,
+        IDbTransaction? transaction)
+    {
+        var dbConnection = connection ?? _connection;
+
+        var sql = @"SELECT PublisherId
+                       FROM [dbo].[Publishers]
+                      WHERE [Name] = @Name
+                        AND [Website] = @Website;";
+
+        var publisherId = await dbConnection.QueryFirstOrDefaultAsync<int?>(sql,
+            new
+            {
+                Name = name ?? string.Empty,
+                Website = website ?? string.Empty
+            }, transaction);
+
+        if (publisherId is null)
+        {
+            return null;
+        }
+
+        return PublisherId.Create(publisherId.Value);
+    }
+
+    public async Task<PublisherId> AddPublisherAsync(Publisher publisher,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
         var dbConnection = connection ?? _connection;
+
+        if ( (await PublisherExists(publisher.Name, publisher.Website, dbConnection, transaction)) is not null )
+        {
+            throw new PublisherExistsException($"Publisher already exists: {publisher.Name}, {publisher.Website}");
+        }
 
         var sql = @"INSERT INTO [dbo].[Publishers]
                             ([Name], [Website])
@@ -32,8 +65,8 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         var publisherId = await dbConnection.ExecuteScalarAsync<int>(sql,
             new
             {
-                author.Name,
-                author.Website
+                publisher.Name,
+                publisher.Website
             }, transaction);
 
         return PublisherId.Create(publisherId);
@@ -88,7 +121,7 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
         return output;
     }
 
-    public async Task<Publisher> GetPublisherAsync(PublisherId publisherId,
+    public async Task<Publisher?> GetPublisherAsync(PublisherId publisherId,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
@@ -98,10 +131,10 @@ internal class PublisherRepository : IPublisherRepository, IDisposable
                            [Website],
                            [DateCreated]
                       FROM [dbo].[Publishers]
-                     WHERE [Id] = @Id";
+                     WHERE [PublisherId] = @PublisherId";
 
-        var publisher = await dbConnection.QuerySingleOrDefaultAsync<Publisher>(sql, new { Id = publisherId.Value }, transaction);
-        return publisher;
+        var publisher = await dbConnection.QuerySingleOrDefaultAsync<PublisherDto>(sql, new { PublisherId = publisherId.Value }, transaction);
+        return PublisherDto.ToPublisher(publisher);
     }
 
     public async Task UpdatePublisherAsync(Publisher publisher, 

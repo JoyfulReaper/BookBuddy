@@ -1,4 +1,5 @@
-﻿using BookBuddy.Application.Common.Interfaces.Persistence;
+﻿using BookBuddy.Application.Common.Exceptions;
+using BookBuddy.Application.Common.Interfaces.Persistence;
 using BookBuddy.Domain.BookAggregate.Entities;
 using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Infrastructure.Persistence.Interfaces;
@@ -13,7 +14,31 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
 
     public BookFormatRepository(IDbConnectionFactory sqlConnectionFactory)
     {
-        _connection = sqlConnectionFactory.CreateConnection();    
+        _connection = sqlConnectionFactory.CreateConnection();
+    }
+
+    public async Task<BookFormatId?> BookFormatExists(string format,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        var dbConnection = connection ?? _connection;
+
+        var sql = @"SELECT Id
+                      FROM [dbo].[BookFormats]
+                     WHERE [Format] = @Format;";
+
+        var bookFormatId = await dbConnection.QueryFirstOrDefaultAsync<int?>(sql,
+            new
+            {
+                Format = format ?? string.Empty
+            }, transaction);
+
+        if (bookFormatId == null)
+        {
+            return null;
+        }
+
+        return BookFormatId.Create(bookFormatId.Value);
     }
 
     public async Task<BookFormatId> AddBookFormatAsync(BookFormat bookFormat,
@@ -21,6 +46,11 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
         IDbTransaction? transaction = null)
     {
         var dbConnection = connection ?? _connection;
+
+        if ((await BookFormatExists(bookFormat.Format, dbConnection, transaction)) is not null)
+        {
+            throw new BookFormatExistsException($"Book format already exists: {bookFormat.Format}");
+        }
 
         var sql = @"INSERT INTO [dbo].[BookFormats]
                             (Format)
@@ -37,7 +67,7 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
         return BookFormatId.Create(bookFormatId);
     }
 
-    public async Task<bool> DeleteBookFormatAsync(BookFormatId id, 
+    public async Task<bool> DeleteBookFormatAsync(BookFormatId id,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
@@ -74,10 +104,10 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
         var bookFormats = await dbConnection.QueryAsync<BookFormatDto>(sql, null, transaction);
 
         var output = new List<BookFormat>();
-        foreach(var book in bookFormats)
+        foreach (var book in bookFormats)
         {
             var formatToAdd = BookFormatDto.ToBookFormat(book);
-            if(formatToAdd is not null)
+            if (formatToAdd is not null)
             {
                 output.Add(formatToAdd);
             }
@@ -97,7 +127,7 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
         return BookFormatDto.ToBookFormat(bookFormat);
     }
 
-    public Task UpdateBookFormatAsync(BookFormat bookFormat, 
+    public Task UpdateBookFormatAsync(BookFormat bookFormat,
         IDbConnection? connection,
         IDbTransaction? transaction)
     {
@@ -123,7 +153,7 @@ internal class BookFormatDto
             return null!;
         }
 
-        return BookFormat.Create(Domain.BookAggregate.ValueObjects.BookFormatId.Create(dto.BookFormatId), 
+        return BookFormat.Create(Domain.BookAggregate.ValueObjects.BookFormatId.Create(dto.BookFormatId),
             dto.Format,
             dto.DateCreated);
     }

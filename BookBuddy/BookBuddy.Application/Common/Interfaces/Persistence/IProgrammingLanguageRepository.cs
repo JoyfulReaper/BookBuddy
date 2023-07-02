@@ -24,4 +24,5 @@ public interface IProgrammingLanguageRepository
     Task<bool> DeleteProgrammingLanguageAsync(ProgrammingLanguageId id,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
+    Task<ProgrammingLanguageId?> ProgrammingLanguageExists(string language, IDbConnection? connection = null, IDbTransaction? transaction = null);
 }

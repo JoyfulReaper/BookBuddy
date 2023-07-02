@@ -7,7 +7,7 @@ public record BookResponse(
     PublisherResponse Publisher,
     BookFormatResponse BookFormat,
     ProgrammingLanguageResponse ProgrammingLanguage,
-    string? Ibsn,
+    string? Isbn,
     int PublicationYear,
     string? Genre,
     string? Website,
@@ -15,15 +15,19 @@ public record BookResponse(
     DateTime Datecreate);
 
 public record class ProgrammingLanguageResponse(
+    int ProgrammingLanguageId,
     string Language);
 
 public record class BookFormatResponse(
+    int BookFormatId,
     string Format);
 
 public record AuthorResponse(
+    int AuthorId,
     string FirstName,
     string LastName);
 
 public record PublisherResponse(
+    int PublisherId,
     string Name,
     string? Website);

@@ -5,10 +5,14 @@ namespace BookBuddy.Application.Books.Commands.CreateBook;
 
 public record CreateBookCommand(
     string Title,
-    AuthorCommand Author,
-    PublisherCommand Publisher,
-    BookFormatCommand BookFormat,
-    ProgrammingLanguageCommand ProgrammingLanguage,
+    int? AuthorId,
+    int? PublisherId,
+    int? BookFormatId,
+    int? ProgrammingLanguageId,
+    AuthorCommand? Author,
+    PublisherCommand? Publisher,
+    BookFormatCommand? BookFormat,
+    ProgrammingLanguageCommand? ProgrammingLanguage,
     string? Isbn,
     int PublicationYear,
     string? Genre,

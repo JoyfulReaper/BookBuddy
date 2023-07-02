@@ -24,4 +24,5 @@ public interface IBookFormatRepository
     Task<bool> DeleteBookFormatAsync(BookFormatId id, 
         IDbConnection? connection = null, 
         IDbTransaction? transaction = null);
+    Task<BookFormatId?> BookFormatExists(string format, IDbConnection? connection = null, IDbTransaction? transaction = null);
 }

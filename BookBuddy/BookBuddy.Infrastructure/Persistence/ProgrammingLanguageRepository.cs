@@ -1,4 +1,5 @@
-﻿using BookBuddy.Application.Common.Interfaces.Persistence;
+﻿using BookBuddy.Application.Common.Exceptions;
+using BookBuddy.Application.Common.Interfaces.Persistence;
 using BookBuddy.Domain.BookAggregate.Entities;
 using BookBuddy.Domain.BookAggregate.ValueObjects;
 using BookBuddy.Infrastructure.Persistence.Interfaces;
@@ -16,11 +17,41 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, I
         _connection = sqlConnectionFactory.CreateConnection();
     }
 
-    public async Task<ProgrammingLanguageId> AddProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage, 
+    public async Task<ProgrammingLanguageId?> ProgrammingLanguageExists(string language,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
         var dbConnection = connection ?? _connection;
+
+        var sql = @"SELECT Id
+                      FROM [dbo].[ProgrammingLanguages]
+                     WHERE [Language] = @Language;";
+
+        var programmingLanguageId = await dbConnection.QueryFirstOrDefaultAsync<int?>(sql,
+            new
+            {
+                Language = language ?? string.Empty
+            }, transaction);
+
+        if(programmingLanguageId == null)
+        {
+            return null;
+        }
+
+        return ProgrammingLanguageId.Create(programmingLanguageId.Value);
+    }
+
+    public async Task<ProgrammingLanguageId> AddProgrammingLanguageAsync(ProgrammingLanguage programmingLanguage,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        var dbConnection = connection ?? _connection;
+
+        if( (await ProgrammingLanguageExists(programmingLanguage.Language, dbConnection, transaction)) is not null)
+        {
+            throw new ProgrammingLanguageExistsException($"Programming language already exists: {programmingLanguage.Language}");
+        }
+
         var sql = @"INSERT INTO [dbo].[ProgrammingLanguages]
                             ([Language])
                           VALUES
@@ -36,7 +67,7 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, I
         return ProgrammingLanguageId.Create(programmingLanguageId);
     }
 
-    public async Task<bool> DeleteProgrammingLanguageAsync(ProgrammingLanguageId id, 
+    public async Task<bool> DeleteProgrammingLanguageAsync(ProgrammingLanguageId id,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
@@ -79,7 +110,7 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, I
         return output;
     }
 
-    public async Task<ProgrammingLanguage?> GetProgrammingLanguageAsync(ProgrammingLanguageId id, 
+    public async Task<ProgrammingLanguage?> GetProgrammingLanguageAsync(ProgrammingLanguageId id,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
@@ -89,11 +120,11 @@ internal class ProgrammingLanguageRepository : IProgrammingLanguageRepository, I
                       FROM [dbo].[ProgrammingLanguages]
                      WHERE [ProgrammingLanguageId] = @ProgrammingLanguageId";
 
-        var lang = await dbConnection.QuerySingleOrDefaultAsync<ProgrammingLanguageDto>(sql, new { id }, transaction);
+        var lang = await dbConnection.QuerySingleOrDefaultAsync<ProgrammingLanguageDto>(sql, new { ProgrammingLanguageId = id.Value }, transaction);
         return ProgrammingLanguageDto.ToProgrammingLanguage(lang);
     }
 
-    public async Task UpdateProgrammingLanguageAsync(ProgrammingLanguage lang, 
+    public async Task UpdateProgrammingLanguageAsync(ProgrammingLanguage lang,
         IDbConnection? connection,
         IDbTransaction? transaction)
     {
