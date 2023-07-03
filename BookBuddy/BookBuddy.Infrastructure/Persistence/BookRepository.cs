@@ -105,6 +105,16 @@ internal class BookRepository : IBookRepository, IDisposable
         }
     }
 
+    public async Task<bool> BookExists(BookId id, 
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        var dbConnection = connection ?? _connection;
+        var sql = "SELECT COUNT(*) FROM Books WHERE BookId = @BookId;";
+        var count =  await dbConnection.ExecuteScalarAsync<int>(sql, new { BookId = id.Value }, transaction);
+        return count > 0;
+    }
+
     public async Task<bool> DeleteBookAsync(BookId id, 
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -140,6 +150,9 @@ internal class BookRepository : IBookRepository, IDisposable
         IDbTransaction? transaction = null)
     {
         var dbConnection = connection ?? _connection;
+        if (dbConnection.State != ConnectionState.Open)
+            dbConnection.Open();
+
         var transactionToUse = transaction ?? dbConnection.BeginTransaction();
 
         var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
@@ -175,11 +188,34 @@ internal class BookRepository : IBookRepository, IDisposable
         return BookDto.ToBook(book, author, publisher, bookFormat, programmingLanguage);
     }
 
-    public Task UpdateBookAsync(Book book, 
+    public async Task<bool> UpdateBookAsync(Book book, 
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        throw new NotImplementedException();
+        var dbConnection = connection ?? _connection;
+
+        var sql = @"UPDATE [dbo].[Books]
+                          SET Title = @Title, AuthorId = @AuthorId, PublisherId = @PublisherId, BookFormatId = @BookFormatId, 
+                          ProgrammingLanguageId = @ProgrammingLanguageId, ISBN = @Isbn, PublicationYear = @PublicationYear, 
+                          Genre =  @Genre, Website = @Website, Notes = @Notes
+                          WHERE DateDeleted IS NULL AND BookId = @BookId;";
+
+        var rowsEffected = await dbConnection.ExecuteAsync(sql, new
+        {
+            book.Title,
+            AuthorId = book.AuthorId?.Value,
+            PublisherId = book.PublisherId?.Value,
+            ProgrammingLanguageId = book.ProgrammingLanguageId?.Value,
+            BookFormatId = book.BookFormatId?.Value,
+            book.Isbn,
+            book.PublicationYear,
+            book.Genre,
+            book.Website,
+            book.Notes,
+            BookId = book.Id.Value
+        }, transaction);
+
+        return rowsEffected > 0;
     }
 }
 

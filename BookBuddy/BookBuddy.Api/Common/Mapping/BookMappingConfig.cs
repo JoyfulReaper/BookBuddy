@@ -22,9 +22,18 @@ public class BookMappingConfig : IRegister
 
         config.NewConfig<BookFormat, BookFormatResponse>();
 
+        config.NewConfig<UpdateBookRequest, UpdateBookCommand>();
+
         config.NewConfig<ProgrammingLanguage, ProgrammingLanguageResponse>();
 
+        // TODO: Figure out how to fix the warnings, I don't think this is correct
+        // BUT it does work
         config.NewConfig<Book, BookResponse>()
-            .Map(dest => dest.Id, src => src.Id.Value);
+            .Map(dest => dest.Id, src => src.Id.Value)
+            .Map(dest => dest.Author, src => src.Author)
+            .Map(dest => dest.Author.AuthorId, src => src.AuthorId.Value)
+            .Map(dest => dest.ProgrammingLanguage.ProgrammingLanguageId, src => src.ProgrammingLanguageId.Value)
+            .Map(dest => dest.BookFormat.BookFormatId, src => src.BookFormatId.Value)
+            .Map(dest => dest.Publisher.PublisherId, src => src.PublisherId.Value);
     }
 }

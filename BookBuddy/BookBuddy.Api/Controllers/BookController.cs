@@ -1,5 +1,6 @@
 ﻿using BookBuddy.Application.Books.Commands.CreateBook;
 using BookBuddy.Application.Books.Queries.GetBook;
+using BookBuddy.Application.Common.Exceptions;
 using BookBuddy.Contracts.Books;
 using BookBuddy.Domain.BookAggregate.ValueObjects;
 using MapsterMapper;
@@ -33,7 +34,7 @@ public class BookController : ControllerBase
             return NotFound();
         }
 
-        return Ok(book);
+        return Ok(_mapper.Map<BookResponse>(book));
     }
 
     [HttpPost]
@@ -43,5 +44,21 @@ public class BookController : ControllerBase
         var createdBook = await _mediator.Send(command);
 
         return CreatedAtAction(nameof(GetBook), new { id = createdBook.Id }, _mapper.Map<BookResponse>(createdBook));
+    }
+
+    [HttpPut]
+    public async Task<ActionResult<BookResponse>> UpdateBook(UpdateBookRequest request)
+    {
+        var command = _mapper.Map<UpdateBookCommand>(request);
+
+        try
+        {
+            var updatedBook = await _mediator.Send(command);
+            return Ok(_mapper.Map<BookResponse>(updatedBook));
+        }
+        catch (BookNotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

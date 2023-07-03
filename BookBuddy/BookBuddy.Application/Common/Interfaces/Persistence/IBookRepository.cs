@@ -17,11 +17,12 @@ public interface IBookRepository
         IDbConnection? connection = null, 
         IDbTransaction? transaction = null);
 
-    Task UpdateBookAsync(Book book,
+    Task<bool> UpdateBookAsync(Book book,
         IDbConnection? connection = null, 
         IDbTransaction? transaction = null);
 
     Task<bool> DeleteBookAsync(BookId id,
         IDbConnection? connection = null, 
-        IDbTransaction? transaction = null); 
+        IDbTransaction? transaction = null);
+    Task<bool> BookExists(BookId id, IDbConnection? connection = null, IDbTransaction? transaction = null);
 }
