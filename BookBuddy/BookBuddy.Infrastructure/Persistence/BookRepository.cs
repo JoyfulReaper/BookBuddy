@@ -137,12 +137,55 @@ internal class BookRepository : IBookRepository, IDisposable
         IDbTransaction? transaction = null)
     {
         var dbConnection = connection ?? _connection;
-        var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
-                          FROM [dbo].[Books] WHERE DateDeleted IS NULL;";
+        var sql = @"SELECT
+	                        b.BookId
+                           ,b.Title
+                           ,b.AuthorId
+                           ,b.PublisherId
+                           ,b.BookformatId
+                           ,b.ProgrammingLanguageId
+                           ,b.ISBN
+                           ,b.PublicationYear
+                           ,b.Genre
+                           ,b.Website
+                           ,b.Notes
+                           ,b.DateCreated
+                           ,a.*
+                           ,p.*
+                           ,f.*
+                           ,l.*
+                        FROM [dbo].[Books] b
+                        LEFT JOIN [dbo].[Authors] a
+	                        ON b.AuthorId = a.AuthorId
+                        LEFT JOIN [dbo].[Publishers] p
+	                        ON b.PublisherId = p.PublisherId
+                        LEFT JOIN [dbo].[BookFormats] f
+	                        ON b.BookFormatId = f.BookFormatId
+                        LEFT JOIN [dbo].[ProgrammingLanguages] l
+	                        ON b.ProgrammingLanguageId = l.ProgrammingLanguageId
+                        WHERE DateDeleted IS NULL;";
 
-        var books = await dbConnection.QueryAsync<BookDto>(sql, transaction);
+        var books = await dbConnection.QueryAsync<BookDto, AuthorDto, PublisherDto, BookFormatDto, ProgrammingLanguageDto, BookDto>(sql, (b, a, p, f, l) => {
+            b.Author = a;
+            b.Publisher = p;
+            b.BookFormat = f;
+            b.ProgrammingLanguage = l;
+            return b;
+        }, splitOn: "AuthorId,PublisherId,BookFormatId,ProgrammingLanguageId");
 
-        throw new NotImplementedException();
+        var output = new List<Book>();
+        foreach (var book in books)
+        {
+            var bookToAdd = BookDto.ToBook(book,
+                book.AuthorId == null ? null : AuthorDto.ToAuthor(book.Author),
+                book.PublisherId == null ? null : PublisherDto.ToPublisher(book.Publisher),
+                book.BookFormatId == null ? null : BookFormatDto.ToBookFormat(book.BookFormat),
+                book.ProgrammingLanguageId == null ? null : ProgrammingLanguageDto.ToProgrammingLanguage(book.ProgrammingLanguage));
+
+            output.Add(bookToAdd);
+        }
+
+        return output;
     }
 
     public async Task<Book?> GetBookAsync(BookId id,
@@ -224,9 +267,13 @@ internal class BookDto
     public int BookId { get; set; }
     public string Title { get; set; } = string.Empty;
     public int? AuthorId { get; set; }
+    public AuthorDto Author { get; set; }
     public int? PublisherId { get; set; }
+    public PublisherDto Publisher { get; set; }
     public int? BookFormatId { get; set; }
+    public BookFormatDto BookFormat { get; set; }
     public int? ProgrammingLanguageId { get; set; }
+    public ProgrammingLanguageDto ProgrammingLanguage { get; set; }
     public string? ISBN { get; set; }
     public int PublicationYear { get; set; }
     public string? Genre { get; set; }
