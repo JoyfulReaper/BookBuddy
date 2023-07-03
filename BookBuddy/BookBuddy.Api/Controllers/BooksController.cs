@@ -1,4 +1,5 @@
 ﻿using BookBuddy.Application.Books.Commands.CreateBook;
+using BookBuddy.Application.Books.Queries.GetAllBooks;
 using BookBuddy.Application.Books.Queries.GetBook;
 using BookBuddy.Application.Common.Exceptions;
 using BookBuddy.Contracts.Books;
@@ -12,15 +13,24 @@ namespace BookBuddy.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class BookController : ControllerBase
+public class BooksController : ControllerBase
 {
     private readonly IMapper _mapper;
-    private readonly IMediator _mediator;
+    private readonly ISender _mediator;
 
-    public BookController(IMapper mapper, IMediator mediator)
+    public BooksController(IMapper mapper, ISender mediator)
     {
         _mapper = mapper;
         _mediator = mediator;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<BookResponse>>> GetAllBooks()
+    {
+        var query = new GetAllBooksQuery();
+        var allBooks = await  _mediator.Send(query);
+
+        return Ok(_mapper.Map<IEnumerable<BookResponse>>(allBooks));
     }
 
     [HttpGet("{id}")]
