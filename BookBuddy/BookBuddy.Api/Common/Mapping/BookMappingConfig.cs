@@ -24,6 +24,7 @@ public class BookMappingConfig : IRegister
 
         config.NewConfig<ProgrammingLanguage, ProgrammingLanguageResponse>();
 
-        config.NewConfig<Book, BookResponse>();
+        config.NewConfig<Book, BookResponse>()
+            .Map(dest => dest.Id, src => src.Id.Value);
     }
 }

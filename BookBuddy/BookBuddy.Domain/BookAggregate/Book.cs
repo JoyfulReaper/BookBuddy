@@ -23,7 +23,7 @@ public class Book : Entity<BookId>
         string? notes,
         DateTime datecreated) : base (bookId)
     {
-        BookId = bookId;
+        Id = bookId;
         Title = title;
         AuthorId = authorId;
         PublisherId = publisherId;
@@ -76,7 +76,6 @@ public class Book : Entity<BookId>
             dateCreated);
     }
 
-    public BookId BookId { get; }
     public AuthorId? AuthorId { get; }
     public PublisherId? PublisherId { get; }
     public BookFormatId? BookFormatId { get; }
