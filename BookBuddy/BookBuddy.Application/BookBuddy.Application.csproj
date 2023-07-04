@@ -14,8 +14,4 @@
     <ProjectReference Include="..\BookBuddy.Domain\BookBuddy.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Authors\Queries\GetAuthor\" />
-  </ItemGroup>
-
 </Project>

@@ -1,4 +1,5 @@
 ﻿using BookBuddy.Application.Books.Commands.CreateBook;
+using BookBuddy.Application.Books.Commands.DeleteBook;
 using BookBuddy.Application.Books.Queries.GetAllBooks;
 using BookBuddy.Application.Books.Queries.GetBook;
 using BookBuddy.Application.Common.Exceptions;
@@ -59,10 +60,9 @@ public class BooksController : ControllerBase
     [HttpPut]
     public async Task<ActionResult<BookResponse>> UpdateBook(UpdateBookRequest request)
     {
-        var command = _mapper.Map<UpdateBookCommand>(request);
-
         try
         {
+            var command = _mapper.Map<UpdateBookCommand>(request);
             var updatedBook = await _mediator.Send(command);
             return Ok(_mapper.Map<BookResponse>(updatedBook));
         }
@@ -70,5 +70,19 @@ public class BooksController : ControllerBase
         {
             return NotFound();
         }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteBook(int id)
+    {
+        var command = new DeleteBookCommand(BookId.Create(id));
+        var result = await _mediator.Send(command);
+
+        if (!result)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
     }
 }

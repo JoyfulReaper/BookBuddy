@@ -142,7 +142,7 @@ internal class BookRepository : IBookRepository, IDisposable
                            ,b.Title
                            ,b.AuthorId
                            ,b.PublisherId
-                           ,b.BookformatId
+                           ,b.BookFormatId
                            ,b.ProgrammingLanguageId
                            ,b.ISBN
                            ,b.PublicationYear
@@ -198,10 +198,13 @@ internal class BookRepository : IBookRepository, IDisposable
 
         var transactionToUse = transaction ?? dbConnection.BeginTransaction();
 
-        var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookformatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
+        var sql = @"SELECT BookId, Title, AuthorId, PublisherId, BookFormatId, ProgrammingLanguageId, ISBN, PublicationYear, Genre, Website, Notes, DateCreated
                           FROM [dbo].[Books] WHERE DateDeleted IS NULL AND BookId = @BookId;";
 
         var book = await dbConnection.QuerySingleOrDefaultAsync<BookDto>(sql, new { BookId = id.Value }, transactionToUse);
+
+        if(book is null)
+            return null;
 
         Author? author = null;
         if( book.AuthorId is not null)
