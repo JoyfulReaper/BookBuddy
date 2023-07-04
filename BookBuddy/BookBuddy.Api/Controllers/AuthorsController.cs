@@ -1,4 +1,6 @@
-﻿using MapsterMapper;
+﻿using BookBuddy.Application.Authors.Queries.GetAllAuthors;
+using BookBuddy.Contracts.Books;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,5 +20,12 @@ public class AuthorsController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Author>>> GetAll()
+    {
+        var command = new GetAllAuthorsQuery();
+        var authors = await _mediator.Send(command);
 
+        return Ok(_mapper.Map<IEnumerable<Author>>(authors));
+    }
 }
