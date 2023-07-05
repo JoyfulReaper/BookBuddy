@@ -24,23 +24,23 @@ public class AuthorsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Author>>> GetAll()
+    public async Task<ActionResult<IEnumerable<AuthorResponse>>> GetAll()
     {
         var command = new GetAllAuthorsQuery();
         var authors = await _mediator.Send(command);
 
-        return Ok(_mapper.Map<IEnumerable<Author>>(authors));
+        return Ok(_mapper.Map<IEnumerable<AuthorResponse>>(authors));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Author>> Get(int id)
+    public async Task<ActionResult<AuthorResponse>> Get(int id)
     {
         try
         {
             var command = new GetAuthorQuery(AuthorId.Create(id));
             var author = await _mediator.Send(command);
 
-            return Ok(_mapper.Map<Author>(author));
+            return Ok(_mapper.Map<AuthorResponse>(author));
         }
         catch (AuthorNotFoundException)
         {

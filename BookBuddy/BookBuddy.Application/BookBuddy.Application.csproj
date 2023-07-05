@@ -14,4 +14,10 @@
     <ProjectReference Include="..\BookBuddy.Domain\BookBuddy.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="BookFormats\Commands\" />
+    <Folder Include="Publishers\" />
+    <Folder Include="ProgrammingLanguages\" />
+  </ItemGroup>
+
 </Project>

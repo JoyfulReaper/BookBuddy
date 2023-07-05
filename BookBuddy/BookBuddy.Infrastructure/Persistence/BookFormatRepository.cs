@@ -100,7 +100,7 @@ internal class BookFormatRepository : IBookFormatRepository, IDisposable
     {
         var dbConnection = connection ?? _connection;
 
-        var sql = "SELECT BookFormatId, Format, DateCreated FROM BookFormats WHERE BookFormatId = @BookFormatId";
+        var sql = "SELECT BookFormatId, Format, DateCreated FROM BookFormats";
         var bookFormats = await dbConnection.QueryAsync<BookFormatDto>(sql, null, transaction);
 
         var output = new List<BookFormat>();
