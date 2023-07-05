@@ -16,15 +16,19 @@ public class BookMappingConfig : IRegister
     {
         config.NewConfig<CreateBookRequest, CreateBookCommand>();
 
-        config.NewConfig<Author, AuthorResponse>();
+        config.NewConfig<Author, AuthorResponse>()
+            .Map(dest => dest.AuthorId, src => src.Id.Value);
 
-        config.NewConfig<Publisher, PublisherResponse>();
+        config.NewConfig<Publisher, PublisherResponse>()
+            .Map(dest => dest.PublisherId, src => src.Id.Value);
 
-        config.NewConfig<BookFormat, BookFormatResponse>();
+        config.NewConfig<BookFormat, BookFormatResponse>()
+            .Map(dest => dest.BookFormatId, src => src.Id.Value);
 
         config.NewConfig<UpdateBookRequest, UpdateBookCommand>();
 
-        config.NewConfig<ProgrammingLanguage, ProgrammingLanguageResponse>();
+        config.NewConfig<ProgrammingLanguage, ProgrammingLanguageResponse>()
+            .Map(dest => dest.ProgrammingLanguageId, src => src.Id.Value);
 
         // TODO: Figure out how to fix the warnings, I don't think this is correct
         // BUT it does work
